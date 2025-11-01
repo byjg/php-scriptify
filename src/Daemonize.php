@@ -97,8 +97,8 @@ class Daemonize
                 ' ',
                 array_map(
                     /**
-                     * @param $v
-                     * @param $k
+                     * @param mixed $v
+                     * @param string $k
                      * @return string
                      */
                     function ($v, $k) {

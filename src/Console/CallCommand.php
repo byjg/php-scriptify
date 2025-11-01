@@ -12,6 +12,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class CallCommand extends Command
 {
+    #[\Override]
     protected function configure(): void
     {
         $this
@@ -43,6 +44,7 @@ class CallCommand extends Command
             );
     }
 
+    #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $endpoint = $input->getArgument('endppoint');

@@ -11,13 +11,19 @@
   ],
   "require": {
     "symfony/console": "^5.4|^6.2|^7.0",
-    "php": ">=8.1 <8.4"
+    "php": ">=8.1 <8.5"
   },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
   "require-dev": {
     "ext-posix": "*",
-    "byjg/restserver": "^5.0",
-    "phpunit/phpunit": "^9.6",
-    "vimeo/psalm": "^5.9"
+    "byjg/restserver": "^6.0",
+    "phpunit/phpunit": "^9.6|^11",
+    "vimeo/psalm": "^5.9|^6"
+  },
+  "scripts": {
+    "test": "vendor/bin/phpunit",
+    "psalm": "vendor/bin/psalm"
   },
   "license": "MIT"
 }

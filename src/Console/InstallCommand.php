@@ -11,6 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class InstallCommand extends Command
 {
+    #[\Override]
     protected function configure(): void
     {
         $this
@@ -75,6 +76,7 @@ class InstallCommand extends Command
             );
     }
 
+    #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         parse_str(implode("&", $input->getOption('env')), $env);

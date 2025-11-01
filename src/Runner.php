@@ -64,7 +64,7 @@ class Runner
     /**
      * @throws ReflectionException
      */
-    public function showDocs()
+    public function showDocs(): void
     {
         $reflection = new ReflectionClass($this->instance);
         $method = $reflection->getMethod($this->methodName);

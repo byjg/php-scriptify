@@ -7,7 +7,7 @@ class DaemonizeTest extends TestCase
 {
     protected $serviceWriter = null;
 
-    protected function clearTest()
+    protected function clearTest(): void
     {
         $fileList = [
             '/tmp/test.service',
@@ -24,25 +24,28 @@ class DaemonizeTest extends TestCase
         Daemonize::setWriter(null);
     }
 
+    #[\Override]
     public function setUp(): void
     {
         $this->clearTest();
         $this->serviceWriter = new \ByJG\Daemon\ServiceWriter('/tmp');
     }
 
+    #[\Override]
     public function tearDown(): void
     {
         $this->clearTest();
     }
 
-    protected function read($file)
+    protected function read($file): string
     {
         $contents = file_get_contents($file);
 
+        $cwd = getcwd();
         $contents = str_replace(
             [
                 PHP_BINARY,
-                getcwd(),
+                $cwd !== false ? $cwd : '',
             ],
             [
                 'PHP_BINARY',
@@ -54,7 +57,7 @@ class DaemonizeTest extends TestCase
         return $contents;
     }
 
-    public function testInstallMock()
+    public function testInstallMock(): void
     {
         Daemonize::setWriter($this->serviceWriter);
         $result = Daemonize::install('test', 'ByJG\Daemon\Sample\TryMe::ping', 'vendor/autoload.php', __DIR__ . '/../', "systemd", 'Custom Description', [], []);
@@ -63,7 +66,7 @@ class DaemonizeTest extends TestCase
         $this->assertEquals($this->read(__DIR__ . '/expected/test.service'), $this->read('/tmp/test.service'));
     }
 
-    public function testInstallMockWithEnv()
+    public function testInstallMockWithEnv(): void
     {
         Daemonize::setWriter($this->serviceWriter);
         $result = Daemonize::install('test', 'ByJG\Daemon\Sample\TryMe::ping', 'vendor/autoload.php', __DIR__ . '/../', "systemd", 'Custom Description', ["a" => "1", "b" => 2], ['APP_ENV' => 'test', 'TEST' => 'true']);
@@ -74,6 +77,8 @@ class DaemonizeTest extends TestCase
 
     /**
      * This test will fail if you don't have root permission
+     *
+     * @return void
      */
     public function testCommandLine()
     {
@@ -117,6 +122,8 @@ class DaemonizeTest extends TestCase
 
     /**
      * This test will fail if you don't have root permission
+     *
+     * @return void
      */
     public function testInstall()
     {

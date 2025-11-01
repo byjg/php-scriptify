@@ -11,6 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class RunCommand extends Command
 {
+    #[\Override]
     protected function configure(): void
     {
         $this
@@ -57,6 +58,7 @@ class RunCommand extends Command
 
     }
 
+    #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $className = $input->getArgument('classname');
