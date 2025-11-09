@@ -23,7 +23,7 @@ class TryMe
      * @param string $arg1
      * @param string|null $arg2
      */
-    public function ping(string $arg1, string $arg2 = null): void
+    public function ping(string $arg1, ?string $arg2 = null): void
     {
         $result = "pong - $arg1 - $arg2\n";
         echo $result;

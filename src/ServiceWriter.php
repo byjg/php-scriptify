@@ -41,7 +41,7 @@ class ServiceWriter
      * @param int|null $chmod
      * @throws DaemonizeException
      */
-    public function writeService(string $path, string $contents, int $chmod = null): void
+    public function writeService(string $path, string $contents, ?int $chmod = null): void
     {
         $this->writeFile($path, $contents);
 
