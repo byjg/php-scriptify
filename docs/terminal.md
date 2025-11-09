@@ -4,7 +4,7 @@ sidebar_position: 4
 
 # Interactive PHP Terminal
 
-The `terminal` command opens an interactive PHP shell (REPL) with your project's autoloader and environment variables pre-loaded.
+The `terminal` command opens an interactive PHP shell (REPL) with your project's autoloader and environment variables preloaded.
 
 ## Basic Usage
 
@@ -89,7 +89,7 @@ The terminal command discovers the autoloader in this order:
 
 The `terminal` command requires the PHP `readline` extension. This is commonly available in most PHP installations.
 
-If readline is not available, you'll see an error message with installation instructions.
+If the `readline` extension is not available, you'll see an error message with installation instructions.
 
 ## Use Cases
 

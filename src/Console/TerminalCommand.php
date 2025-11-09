@@ -174,7 +174,8 @@ class TerminalCommand extends Command
         $autoload = getenv('SCRIPTIFY_BOOTLOADER');
 
         if (!empty($autoload) && file_exists($autoload)) {
-            return realpath($autoload);
+            $resolved = realpath($autoload);
+            return $resolved !== false ? $resolved : null;
         }
 
         // Try default locations
@@ -186,7 +187,8 @@ class TerminalCommand extends Command
 
         foreach ($defaultPaths as $path) {
             if (file_exists($path)) {
-                return realpath($path);
+                $resolved = realpath($path);
+                return $resolved !== false ? $resolved : null;
             }
         }
 
@@ -206,7 +208,11 @@ class TerminalCommand extends Command
         $self = $this;
 
         // Store reference for completion function
-        $completionCallback = function($input, $index) use ($self) {
+        /**
+         * @param string $input
+         * @return array<array-key, string>
+         */
+        $completionCallback = function(string $input) use ($self): array {
 
             // Check if we're completing a variable or namespace (look at the line buffer)
             $info = readline_info();
@@ -411,6 +417,7 @@ class TerminalCommand extends Command
 
     /**
      * Get all available PHP built-in functions
+     * @return array<array-key, string>
      */
     protected function getPhpFunctions(): array
     {
@@ -420,6 +427,7 @@ class TerminalCommand extends Command
 
     /**
      * Get PHP language keywords and constructs
+     * @return array<array-key, string>
      */
     protected function getPhpKeywords(): array
     {
@@ -472,6 +480,7 @@ class TerminalCommand extends Command
 
     /**
      * Get user-defined variables from the session
+     * @return array<string, mixed>
      */
     protected function getUserVariables(): array
     {
@@ -481,6 +490,7 @@ class TerminalCommand extends Command
     /**
      * Get all loaded classes, interfaces, and traits
      * Includes both PHP built-in and user-defined classes
+     * @return array<array-key, string>
      */
     protected function getLoadedClasses(): array
     {
@@ -618,6 +628,7 @@ class TerminalCommand extends Command
 
     /**
      * Get method/property completions for an object variable
+     * @return array<array-key, string>
      */
     protected function getObjectCompletions(string $varName, string $prefix = ''): array
     {
@@ -669,7 +680,7 @@ class TerminalCommand extends Command
             // Sort and return unique values
             $completions = array_unique($completions);
             sort($completions);
-            return array_values($completions);
+            return $completions;
 
         } catch (\Exception $e) {
             return [];
@@ -679,6 +690,7 @@ class TerminalCommand extends Command
     /**
      * Get completions based on current input
      * Note: $input is the word being completed (the partial word under cursor)
+     * @return array<array-key, string>
      */
     protected function getCompletions(string $input): array
     {
@@ -716,6 +728,6 @@ class TerminalCommand extends Command
         // Return unique sorted results
         $unique = array_unique($filtered);
         sort($unique);
-        return array_values($unique);
+        return $unique;
     }
 }

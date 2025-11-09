@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# Call a PHP method from command line
+# Call a PHP method from the command line
 
 Assuming you have a class and a method like this:
 
@@ -15,7 +15,7 @@ class MyExistingClass
 	// ...
 
     /**
-     * This is sample method 
+     * This is a sample method 
      * @param string $param1
      * @param string $param2
      */

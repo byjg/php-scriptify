@@ -110,8 +110,8 @@ class Scriptify
             )
         ];
 
-        $template = new Template(file_get_contents($templatePath));
-        $templateStr = $template->render($vars);
+        $templateObj = new Template(file_get_contents($templatePath));
+        $templateStr = $templateObj->render($vars);
 
         // Check if is OK
         if ($check) {

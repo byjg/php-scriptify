@@ -6,8 +6,8 @@ sidebar_position: 2
 
 This option allows you to create a system service from any PHP class. 
 
-## Test the class/method call from command line
-First you need to test how ro call the method from command line:
+## Test the class/method call from the command line
+First, you need to test how ro call the method from the command line:
 
 ```bash
 scriptify run \

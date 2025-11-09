@@ -6,7 +6,7 @@
 [![GitHub license](https://img.shields.io/github/license/byjg/php-scriptify.svg)](https://opensource.byjg.com/opensource/licensing.html)
 [![GitHub release](https://img.shields.io/github/release/byjg/php-scriptify.svg)](https://github.com/byjg/php-scriptify/releases/)
 
-Transform any PHP class into an executable script callable from command line without changes or refactoring.
+Transform any PHP class into an executable script callable from the command line without changes or refactoring.
 
 ## Features
 
@@ -19,9 +19,9 @@ Scriptify allows you to:
 
 ## Documentation
 
-- [Call a PHP method from command line](docs/script.md)
+- [Call a PHP method from the command line](docs/script.md)
 - [Install a PHP class/method as a service](docs/install.md)
-- [Call a REST endpoint from command line](docs/endpoint.md)
+- [Call a REST endpoint from the command line](docs/endpoint.md)
 - [Interactive PHP terminal](docs/terminal.md)
 - [Show method documentation](docs/showdocs.md)
 - [Environment variables](docs/environment.md)
