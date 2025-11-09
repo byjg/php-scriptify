@@ -2,6 +2,8 @@
 
 namespace ByJG\Scriptify;
 
+use ByJG\JinjaPhp\Template;
+
 class Scriptify
 {
     protected static ?ServiceWriter $writer = null;
@@ -49,7 +51,7 @@ class Scriptify
         }
 
         $targetServicePath = $targetPathAvailable[$template];
-        $templatePath = __DIR__ . "/../template/linux-" . $template . "-service.tpl";
+        $templatePath = __DIR__ . "/../template/linux-" . $template . "-service.jinja";
 
         if (!file_exists($templatePath)) {
             throw new \Exception("Template '$templatePath' not found");
@@ -78,22 +80,20 @@ class Scriptify
 
         $environmentPrepared = '/etc/scriptify/' . $svcName . '.env';
 
-        $serviceTemplatePath = __DIR__ . "/../template/_service.php.tpl";
         $scriptifyService = realpath(__DIR__ . "/../scripts/scriptify");
 
         $vars = [
-            '#DESCRIPTION#' => $description,
-            '#DAEMONBOOTSTRAP#' => $autoload,
-            '#CLASS#' => str_replace("\\", "\\\\", $className),
-            '#BOOTSTRAP#' => $bootstrap,
-            '#SVCNAME#' => $svcName,
-            '#ROOTPATH#' => realpath($curdir),
-            '#CONSOLEARGS#' => $consoleArgsPrepared,
-            '#ENVIRONMENT#' => $environmentPrepared,
-            '#PHPPATH#' => PHP_BINARY,
-            '#SERVICETEMPLATEPATH#' => $serviceTemplatePath,
-            '#SCRIPTIFYSERVICE#' => $scriptifyService,
-            "#ENVCMDLINE#" => implode(
+            'description' => $description,
+            'daemonbootstrap' => $autoload,
+            'class' => str_replace("\\", "\\\\", $className),
+            'bootstrap' => $bootstrap,
+            'svcname' => $svcName,
+            'rootpath' => realpath($curdir),
+            'consoleargs' => $consoleArgsPrepared,
+            'environment' => $environmentPrepared,
+            'phppath' => PHP_BINARY,
+            'scriptifyservice' => $scriptifyService,
+            'envcmdline' => implode(
                 ' ',
                 array_map(
                     /**
@@ -110,19 +110,20 @@ class Scriptify
             )
         ];
 
-        $templateStr = Scriptify::replaceVars($vars, file_get_contents($templatePath));
+        $template = new Template(file_get_contents($templatePath));
+        $templateStr = $template->render($vars);
 
         // Check if is OK
         if ($check) {
-            require_once($vars['#BOOTSTRAP#']);
-            $classParts = explode('::', str_replace("\\\\", "\\", $vars['#CLASS#']));
+            require_once($vars['bootstrap']);
+            $classParts = explode('::', str_replace("\\\\", "\\", $vars['class']));
             if (!class_exists($classParts[0])) {
                 throw new \Exception('Could not find class ' . $classParts[0]);
             }
             $className = $classParts[0];
             $classTest = new $className();
             if (!method_exists($classTest, $classParts[1])) {
-                throw new \Exception('Could not find method ' . $vars['#CLASS#']);
+                throw new \Exception('Could not find method ' . $vars['class']);
             }
         }
 
@@ -130,14 +131,6 @@ class Scriptify
         Scriptify::getWriter()->writeService($targetServicePath, $templateStr, $template == 'initd' ? 0755 : null);
 
         return true;
-    }
-
-    protected static function replaceVars(array $vars, string $text): string
-    {
-        foreach ($vars as $searchFor => $replace) {
-            $text = str_replace($searchFor, $replace, $text);
-        }
-        return $text;
     }
 
     /**

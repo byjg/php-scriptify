@@ -1,0 +1,12 @@
+# DO NOT REMOVE OR CHANGE THIS LINE - PHP_SCRIPTIFY #
+[Unit]
+Description={{ description }}
+
+[Service]
+Type=simple
+EnvironmentFile={{ environment }}
+ExecStart={{ phppath }} {{ scriptifyservice }} run "{{ class }}" --bootstrap "{{ bootstrap }}" --rootdir "{{ rootpath }}" {{ consoleargs }} --daemon
+Nice=5
+
+[Install]
+WantedBy=multi-user.target

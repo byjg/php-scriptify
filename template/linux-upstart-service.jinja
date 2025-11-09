@@ -1,5 +1,5 @@
 # DO NOT REMOVE OR CHANGE THIS LINE - PHP_SCRIPTIFY #
-description "#DESCRIPTION#"
+description "{{ description }}"
 author      "Scriptify"
 
 # used to be: start on startup
@@ -13,6 +13,6 @@ respawn limit 99 5
 
 script
     echo -n $"Starting $NAME: "
-    source #ENVIRONMENT#
-    #PHPPATH# #SCRIPTIFYSERVICE# run "#CLASS#" --bootstrap "#BOOTSTRAP#" --rootdir "#ROOTPATH#" #CONSOLEARGS# --daemon
+    source {{ environment }}
+    {{ phppath }} {{ scriptifyservice }} run "{{ class }}" --bootstrap "{{ bootstrap }}" --rootdir "{{ rootpath }}" {{ consoleargs }} --daemon
 end script
