@@ -14,7 +14,6 @@ class Caller
         $_SERVER['QUERY_STRING'] = $queryString;
         parse_str($_SERVER['QUERY_STRING'], $_GET);
         parse_str($_SERVER['QUERY_STRING'], $_REQUEST);
-
         require_once $controller;
     }
 }
