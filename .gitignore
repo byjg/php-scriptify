@@ -5,3 +5,6 @@ vendor
 .idea
 services/*.php
 .phpunit.result.cache
+phpunit.coverage.xml
+phpunit.report.xml
+*.bak
