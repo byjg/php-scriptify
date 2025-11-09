@@ -1,6 +1,10 @@
-# Install a PHP class/method call as a daemon
+---
+sidebar_position: 2
+---
 
-This option allows you to create a daemon process from any PHP class. 
+# Install a PHP class/method as a service
+
+This option allows you to create a system service from any PHP class. 
 
 ## Test the class/method call from command line
 First you need to test how ro call the method from command line:
@@ -50,7 +54,7 @@ sudo service mydaemon start  # or stop, status or restart
 
 ## Uninstalling
 
-For uninstall just type:
+For uninstallation type:
 
 ```bash
 scriptify uninstall mydamon

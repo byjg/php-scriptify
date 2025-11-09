@@ -1,3 +1,7 @@
+---
+sidebar_position: 1
+---
+
 # Call a PHP method from command line
 
 Assuming you have a class and a method like this:
@@ -24,7 +28,7 @@ class MyExistingClass
 }
 ```
 
-You can run this method from command line with the following command:
+You can run this method from the command line with the following command:
 
 ```bash
 scriptify run \
