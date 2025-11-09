@@ -1,6 +1,6 @@
-# /etc/cron.d/#SVCNAME#: DO NOT REMOVE OR CHANGE THIS LINE - PHP_DAEMONIZE
+# /etc/cron.d/#SVCNAME#: DO NOT REMOVE OR CHANGE THIS LINE - PHP_SCRIPTIFY
 
 SHELL=/bin/bash
 
-* * * * *     root     #ENVCMDLINE# #PHPPATH# #DAEMONIZESERVICE# run "#CLASS#" --bootstrap "#BOOTSTRAP#" --rootdir "#ROOTPATH#" #CONSOLEARGS# 
+* * * * *     root     #ENVCMDLINE# #PHPPATH# #SCRIPTIFYSERVICE# run "#CLASS#" --bootstrap "#BOOTSTRAP#" --rootdir "#ROOTPATH#" #CONSOLEARGS# 
 

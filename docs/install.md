@@ -6,7 +6,7 @@ This option allows you to create a daemon process from any PHP class.
 First you need to test how ro call the method from command line:
 
 ```bash
-daemonize run \
+scriptify run \
     "\\Some\\Name\\Space\\MyExistingClass::someExistingMethod" \
     --rootdir "/path/to/root" \
     --arg "value1" \
@@ -14,10 +14,10 @@ daemonize run \
 ```
 
 ## Create the daemon process
-If everything is ok, now you can "daemonize" this class (as root):
+If everything is ok, now you can "scriptify" this class (as root):
 
 ```php
-daemonize install --template=systemd mydaemon \
+scriptify install --template=systemd mydaemon \
     --class "\\Some\\Name\\Space\\MyExistingClass::someExistingMethod" \
     --rootdir "/path/to/root" \
     --arg "value1" \
@@ -34,10 +34,10 @@ daemonize install --template=systemd mydaemon \
 
 ## Manage the daemon process
 
-List all "daemonized" php classes:
+List all "scriptifyd" php classes:
 
 ```php
-daemonize services --only-names
+scriptify services --only-names
 ```
 
 Start or stop the linux services:
@@ -53,5 +53,5 @@ sudo service mydaemon start  # or stop, status or restart
 For uninstall just type:
 
 ```bash
-daemonize uninstall mydamon
+scriptify uninstall mydamon
 ```

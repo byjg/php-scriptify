@@ -3,7 +3,7 @@
 To show the documentation, you can use the following command:
 
 ```bash
-daemonize run \
+scriptify run \
     "\\Some\\Name\\Space\\MyExistingClass::someExistingMethod" \
     --showdocs
 ```
@@ -11,7 +11,7 @@ daemonize run \
 ## Example
 
 ```bash
-$ daemonize run \
+$ scriptify run \
     "\\ByJG\\Daemon\\Sample\\TryMe::process" \
     --showdocs
 ```
@@ -24,5 +24,5 @@ This will return a pong message with the arguments passed and write to the file 
 @param string|null $arg2
 
 Usage: 
-daemonize run "\\ByJG\\Daemon\\Sample\\TryMe::ping" --arg <arg1> --arg [arg2] 
+scriptify run "\\ByJG\\Daemon\\Sample\\TryMe::ping" --arg <arg1> --arg [arg2] 
 ```

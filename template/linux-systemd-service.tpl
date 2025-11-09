@@ -1,11 +1,11 @@
-# DO NOT REMOVE OR CHANGE THIS LINE - PHP_DAEMONIZE #
+# DO NOT REMOVE OR CHANGE THIS LINE - PHP_SCRIPTIFY #
 [Unit]
 Description=#DESCRIPTION#
 
 [Service]
 Type=simple
 EnvironmentFile=#ENVIRONMENT#
-ExecStart=#PHPPATH# #DAEMONIZESERVICE# run "#CLASS#" --bootstrap "#BOOTSTRAP#" --rootdir "#ROOTPATH#" #CONSOLEARGS# --daemon
+ExecStart=#PHPPATH# #SCRIPTIFYSERVICE# run "#CLASS#" --bootstrap "#BOOTSTRAP#" --rootdir "#ROOTPATH#" #CONSOLEARGS# --daemon
 Nice=5
 
 [Install]

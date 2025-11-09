@@ -3,15 +3,15 @@
 #	/etc/init.d/#SVCNAME#
 #
 # Starts the php daemon for PHP class #CLASS#
-# PHP_DAEMONIZE
+# PHP_SCRIPTIFY
 #
 # chkconfig: 345 95 5
 # description: #DESCRIPTION#
 # processname: #SVCNAME#
 
 #startup values
-mkdir -p /var/log/daemonize
-log=/var/log/daemonize/general.log
+mkdir -p /var/log/scriptify
+log=/var/log/scriptify/general.log
 
 #
 #	Set NAME, PIDFILE and bin variables.
@@ -22,7 +22,7 @@ PIDFILE=/var/run/$NAME.pid
 start() {
     echo -n $"Starting $NAME: "
     source #ENVIROMENT#
-    start-stop-daemon --start --quiet --background --make-pidfile --pidfile $PIDFILE --exec -- #PHPPATH# #DAEMONIZESERVICE# run "#CLASS#" --bootstrap "#BOOTSTRAP#" --rootdir "#ROOTPATH#" #CONSOLEARGS# --daemonize --pidfile $PIDFILE --log $log --daemon
+    start-stop-daemon --start --quiet --background --make-pidfile --pidfile $PIDFILE --exec -- #PHPPATH# #SCRIPTIFYSERVICE# run "#CLASS#" --bootstrap "#BOOTSTRAP#" --rootdir "#ROOTPATH#" #CONSOLEARGS# --daemonize --pidfile $PIDFILE --log $log --daemon
     case "$?" in
         0) echo "OK!" ;;
         1) echo "already started" ;;

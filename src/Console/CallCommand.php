@@ -1,9 +1,9 @@
 <?php
 
-namespace ByJG\Daemon\Console;
+namespace ByJG\Scriptify\Console;
 
-use ByJG\Daemon\Caller;
-use ByJG\Daemon\Runner;
+use ByJG\Scriptify\Caller;
+use ByJG\Scriptify\Runner;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;

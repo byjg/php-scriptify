@@ -1,6 +1,6 @@
 <?php
 
-namespace ByJG\Daemon;
+namespace ByJG\Scriptify;
 
 use Exception;
 use ReflectionClass;
@@ -11,7 +11,7 @@ class Runner
 
     const SLEEP_SERVICE = 1000;
 
-    const BASE_LOG_PATH = "/var/log/daemonize";
+    const BASE_LOG_PATH = "/var/log/scriptify";
 
     protected $stdIn = STDIN;
     protected $stdOut = STDOUT;

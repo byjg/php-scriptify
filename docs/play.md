@@ -12,7 +12,7 @@ tail -f /etc/tryme.txt
 On the second do:
 
 ```php
-sudo daemonize install --template=systemd tryme "\\ByJG\\Daemon\\Sample\\TryMe::process" "vendor/autoload.php" "./"
+sudo scriptify install --template=systemd tryme "\\ByJG\\Daemon\\Sample\\TryMe::process" "vendor/autoload.php" "./"
 
 sudo service tryme start
 ```

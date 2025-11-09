@@ -1,8 +1,8 @@
 <?php
 
-namespace ByJG\Daemon\Console;
+namespace ByJG\Scriptify\Console;
 
-use ByJG\Daemon\Daemonize;
+use ByJG\Scriptify\Scriptify;
 use Exception;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\InvalidArgumentException;
@@ -17,7 +17,7 @@ class UninstallCommand extends Command
     {
         $this
             ->setName('uninstall')
-            ->setDescription('Uninstall the Linux Daemon previously installed by daemonize')
+            ->setDescription('Uninstall the Linux service previously installed by scriptify')
             ->addArgument(
                 'servicename',
                 InputArgument::REQUIRED,
@@ -29,7 +29,7 @@ class UninstallCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $serviceName = $input->getArgument('servicename');
-        Daemonize::uninstall($serviceName);
+        Scriptify::uninstall($serviceName);
         $output->writeln('Service uninstalled. Maybe the service still running. ');
 
         return 0;

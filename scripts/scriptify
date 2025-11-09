@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 
-$memoryLimit = getenv('DAEMONIZE_MEMORY_LIMIT');
+$memoryLimit = getenv('SCRIPTIFY_MEMORY_LIMIT');
 if (!empty($memoryLimit)) {
     ini_set('memory_limit', $memoryLimit);
 } else {
@@ -17,14 +17,14 @@ if (!file_exists($autoload)) {
 }
 require_once($autoload);
 
-use ByJG\Daemon\Console\CallCommand;
-use ByJG\Daemon\Console\InstallCommand;
-use ByJG\Daemon\Console\RunCommand;
-use ByJG\Daemon\Console\ServicesCommand;
-use ByJG\Daemon\Console\UninstallCommand;
+use ByJG\Scriptify\Console\CallCommand;
+use ByJG\Scriptify\Console\InstallCommand;
+use ByJG\Scriptify\Console\RunCommand;
+use ByJG\Scriptify\Console\ServicesCommand;
+use ByJG\Scriptify\Console\UninstallCommand;
 use Symfony\Component\Console\Application;
 
-$application = new Application('PHP Daemonize by JG', '4.9.1');
+$application = new Application('Scriptify by JG', '4.9.1');
 $application->add(new InstallCommand());
 $application->add(new UninstallCommand());
 $application->add(new RunCommand());

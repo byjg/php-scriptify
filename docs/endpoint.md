@@ -37,7 +37,7 @@ The example above creates a simple REST endpoint `/testclosure` that returns a J
 To call this endpoint from the command line, you can use the following command:
 
 ```bash
-daemonize call \
+scriptify call \
     /testclosure \
     --controller "app.php" \
     --http-get "arg=value1"

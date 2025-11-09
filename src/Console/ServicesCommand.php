@@ -1,8 +1,8 @@
 <?php
 
-namespace ByJG\Daemon\Console;
+namespace ByJG\Scriptify\Console;
 
-use ByJG\Daemon\Daemonize;
+use ByJG\Scriptify\Scriptify;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -15,7 +15,7 @@ class ServicesCommand extends Command
     {
         $this
             ->setName('services')
-            ->setDescription('List all services installed by daemonize')
+            ->setDescription('List all services installed by scriptify')
             ->addOption(
                 'only-names',
                 null,
@@ -27,7 +27,7 @@ class ServicesCommand extends Command
     #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $list = Daemonize::listServices();
+        $list = Scriptify::listServices();
 
 
 
@@ -38,9 +38,9 @@ class ServicesCommand extends Command
 
         $output->writeln("");
         if (count($list) == 0) {
-            $output->writeln("There is no daemonize services installed.");
+            $output->writeln("There is no scriptify services installed.");
         } else {
-            $output->writeln("List of daemonize services: ");
+            $output->writeln("List of scriptify services: ");
             foreach ($list as $filename) {
                 $output->writeln(" - " . basename($filename));
             }

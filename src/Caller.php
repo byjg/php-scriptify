@@ -1,6 +1,6 @@
 <?php
 
-namespace ByJG\Daemon;
+namespace ByJG\Scriptify;
 
 class Caller
 {

@@ -27,7 +27,7 @@ class MyExistingClass
 You can run this method from command line with the following command:
 
 ```bash
-daemonize run \
+scriptify run \
     "\\Some\\Name\\Space\\MyExistingClass::someExistingMethod" \
     --arg value1 \
     --arg value2
@@ -36,7 +36,7 @@ daemonize run \
 If is necessary to execute this method in a specific environment you can use the `--bootstrap` and `--rootdir` parameters:
 
 ```bash
-daemonize run \
+scriptify run \
     "\\Some\\Name\\Space\\MyExistingClass::someExistingMethod" \
     --bootstrap "relative/path/to/bootstrap.php" \
     --rootdir "/path/to/root" \

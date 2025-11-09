@@ -27,8 +27,8 @@ class RunnerTest extends TestCase
     public function testExecuteArgsWithoutRequired(): void
     {
         $this->expectException(ArgumentCountError::class);
-        $runner = new \ByJG\Daemon\Runner(
-            'ByJG\Daemon\Sample\TryMe::ping',
+        $runner = new \ByJG\Scriptify\Runner(
+            'ByJG\Scriptify\Sample\TryMe::ping',
             [],
             false
         );
@@ -37,8 +37,8 @@ class RunnerTest extends TestCase
 
     public function testExecuteArgs(): void
     {
-        $runner = new \ByJG\Daemon\Runner(
-            'ByJG\Daemon\Sample\TryMe::ping',
+        $runner = new \ByJG\Scriptify\Runner(
+            'ByJG\Scriptify\Sample\TryMe::ping',
             ["first"],
             false
         );
@@ -51,8 +51,8 @@ class RunnerTest extends TestCase
 
     public function testExecuteArgs2(): void
     {
-        $runner = new \ByJG\Daemon\Runner(
-            'ByJG\Daemon\Sample\TryMe::ping',
+        $runner = new \ByJG\Scriptify\Runner(
+            'ByJG\Scriptify\Sample\TryMe::ping',
             ["first", "second"],
             false
         );
@@ -65,7 +65,7 @@ class RunnerTest extends TestCase
     public function testCliArg(): void
     {
         /** @psalm-suppress ForbiddenCode */
-        shell_exec( __DIR__ . '/../scripts/daemonize run \\\ByJG\\\Daemon\\\Sample\\\TryMe::ping --arg 1 --arg 2 --rootdir ' . __DIR__ . '/..');
+        shell_exec( __DIR__ . '/../scripts/scriptify run \\\ByJG\\\Scriptify\\\Sample\\\TryMe::ping --arg 1 --arg 2 --rootdir ' . __DIR__ . '/..');
         $this->assertEquals("pong - 1 - 2\n", file_get_contents('/tmp/tryme_test.txt'));
     }
 

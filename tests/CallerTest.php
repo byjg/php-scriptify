@@ -27,7 +27,7 @@ class CallerTest extends TestCase
     public function testCli(): void
     {
         /** @psalm-suppress ForbiddenCode */
-        shell_exec( __DIR__ . '/../scripts/daemonize call /testclosure --http-get arg=10 --controller ' . __DIR__ . '/rest/app.php');
+        shell_exec( __DIR__ . '/../scripts/scriptify call /testclosure --http-get arg=10 --controller ' . __DIR__ . '/rest/app.php');
 
         $this->assertTrue(file_exists('/tmp/tryme_test.txt'));
         $this->assertEquals("{\"result\":\"OK\",\"arg\":\"10\"}\n", file_get_contents('/tmp/tryme_test.txt'));
@@ -36,7 +36,7 @@ class CallerTest extends TestCase
     public function testCliNoArgs(): void
     {
         /** @psalm-suppress ForbiddenCode */
-        shell_exec( __DIR__ . '/../scripts/daemonize call /testclosure --controller ' . __DIR__ . '/rest/app.php');
+        shell_exec( __DIR__ . '/../scripts/scriptify call /testclosure --controller ' . __DIR__ . '/rest/app.php');
 
         $this->assertTrue(file_exists('/tmp/tryme_test.txt'));
         $this->assertEquals("{\"result\":\"OK\",\"arg\":null}\n", file_get_contents('/tmp/tryme_test.txt'));

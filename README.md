@@ -1,12 +1,12 @@
-# PHP Daemonize
+# Scriptify
 
-[![Build Status](https://github.com/byjg/php-daemonize/actions/workflows/phpunit.yml/badge.svg?branch=master)](https://github.com/byjg/php-daemonize/actions/workflows/phpunit.yml)
+[![Build Status](https://github.com/byjg/scriptify/actions/workflows/phpunit.yml/badge.svg?branch=master)](https://github.com/byjg/scriptify/actions/workflows/phpunit.yml)
 [![Opensource ByJG](https://img.shields.io/badge/opensource-byjg-success.svg)](http://opensource.byjg.com)
-[![GitHub source](https://img.shields.io/badge/Github-source-informational?logo=github)](https://github.com/byjg/php-daemonize/)
-[![GitHub license](https://img.shields.io/github/license/byjg/php-daemonize.svg)](https://opensource.byjg.com/opensource/licensing.html)
-[![GitHub release](https://img.shields.io/github/release/byjg/php-daemonize.svg)](https://github.com/byjg/php-daemonize/releases/)
+[![GitHub source](https://img.shields.io/badge/Github-source-informational?logo=github)](https://github.com/byjg/scriptify/)
+[![GitHub license](https://img.shields.io/github/license/byjg/scriptify.svg)](https://opensource.byjg.com/opensource/licensing.html)
+[![GitHub release](https://img.shields.io/github/release/byjg/scriptify.svg)](https://github.com/byjg/scriptify/releases/)
 
-Transform any class in a *nix daemon process or cron job without changes or refactoring.
+Transform any PHP class into an executable script callable from command line without changes or refactoring.
 
 ## Features
 
@@ -27,29 +27,29 @@ Allow you to do the following without change your pre-existing class:
 
 ## Install
 
-Daemonize does not need to be associated to your PHP project. 
+Scriptify does not need to be associated to your PHP project.
 
 Install locally (preferable):
 
 ```bash
-composer require "byjg/php-daemonize"
+composer require "byjg/scriptify"
 ```
 
 Install as a global composer package:
 
 ```bash
-composer global require "byjg/php-daemonize"
-sudo ln -s /root/.composer/vendor/bin/daemonize /usr/local/bin/daemonize
+composer global require "byjg/scriptify"
+sudo ln -s /root/.composer/vendor/bin/scriptify /usr/local/bin/scriptify
 
-# If you want to share this installation with another users consider use the command `chmod a+x /root`. 
-# The root directory will remain unreadable for them, but you'll can execute the script "daemonize".
+# If you want to share this installation with another users consider use the command `chmod a+x /root`.
+# The root directory will remain unreadable for them, but you'll can execute the script "scriptify".
 ```
 
 ## Dependencies
 
-```mermaid  
-flowchart TD  
-    byjg/daemonize --> symfone/console  
+```mermaid
+flowchart TD
+    byjg/scriptify --> symfone/console
 ```
 
 ----  

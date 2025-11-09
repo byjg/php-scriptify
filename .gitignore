@@ -8,3 +8,4 @@ services/*.php
 phpunit.coverage.xml
 phpunit.report.xml
 *.bak
+/.claude/settings.local.json

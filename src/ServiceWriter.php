@@ -1,6 +1,6 @@
 <?php
 
-namespace ByJG\Daemon;
+namespace ByJG\Scriptify;
 
 class ServiceWriter
 {
@@ -15,7 +15,7 @@ class ServiceWriter
      * @param string $path
      * @param string $contents
      * @return void
-     * @throws DaemonizeException
+     * @throws ScriptifyException
      */
     protected function writeFile(string $path, string $contents): void
     {
@@ -24,11 +24,11 @@ class ServiceWriter
         }
 
         set_error_handler(function ($number, $error) {
-            throw new DaemonizeException($error);
+            throw new ScriptifyException($error);
         });
         if (is_null($this->overridePath)) {
-            if (!file_exists('/etc/daemonize')) {
-                mkdir('/etc/daemonize', 0755, true);
+            if (!file_exists('/etc/scriptify')) {
+                mkdir('/etc/scriptify', 0755, true);
             }
         }
         file_put_contents($path, $contents);
@@ -39,7 +39,7 @@ class ServiceWriter
      * @param string $path
      * @param string $contents
      * @param int|null $chmod
-     * @throws DaemonizeException
+     * @throws ScriptifyException
      */
     public function writeService(string $path, string $contents, ?int $chmod = null): void
     {
@@ -53,7 +53,7 @@ class ServiceWriter
     /**
      * @param string $path
      * @param array $environment
-     * @throws DaemonizeException
+     * @throws ScriptifyException
      */
     public function writeEnvironment(string $path, array $environment): void
     {

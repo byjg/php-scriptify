@@ -1,8 +1,8 @@
 <?php
 
-namespace ByJG\Daemon;
+namespace ByJG\Scriptify;
 
-class Daemonize
+class Scriptify
 {
     protected static ?ServiceWriter $writer = null;
 
@@ -67,7 +67,7 @@ class Daemonize
         if (!file_exists($autoload)) {
             $autoload = realpath(__DIR__ . "/../../../autoload.php");
             if (!file_exists($autoload) && $check) {
-                throw new \Exception('Daemonize autoload not found. Did you run `composer dump-autload`?');
+                throw new \Exception('Scriptify autoload not found. Did you run `composer dump-autload`?');
             }
         }
 
@@ -76,10 +76,10 @@ class Daemonize
             $consoleArgsPrepared = '--args ' . implode(' --args ', $consoleArgs);
         }
 
-        $environmentPrepared = '/etc/daemonize/' . $svcName . '.env';
+        $environmentPrepared = '/etc/scriptify/' . $svcName . '.env';
 
         $serviceTemplatePath = __DIR__ . "/../template/_service.php.tpl";
-        $daemonizeService = realpath(__DIR__ . "/../scripts/daemonize");
+        $scriptifyService = realpath(__DIR__ . "/../scripts/scriptify");
 
         $vars = [
             '#DESCRIPTION#' => $description,
@@ -92,7 +92,7 @@ class Daemonize
             '#ENVIRONMENT#' => $environmentPrepared,
             '#PHPPATH#' => PHP_BINARY,
             '#SERVICETEMPLATEPATH#' => $serviceTemplatePath,
-            '#DAEMONIZESERVICE#' => $daemonizeService,
+            '#SCRIPTIFYSERVICE#' => $scriptifyService,
             "#ENVCMDLINE#" => implode(
                 ' ',
                 array_map(
@@ -110,7 +110,7 @@ class Daemonize
             )
         ];
 
-        $templateStr = Daemonize::replaceVars($vars, file_get_contents($templatePath));
+        $templateStr = Scriptify::replaceVars($vars, file_get_contents($templatePath));
 
         // Check if is OK
         if ($check) {
@@ -126,8 +126,8 @@ class Daemonize
             }
         }
 
-        Daemonize::getWriter()->writeEnvironment($environmentPrepared, $environment);
-        Daemonize::getWriter()->writeService($targetServicePath, $templateStr, $template == 'initd' ? 0755 : null);
+        Scriptify::getWriter()->writeEnvironment($environmentPrepared, $environment);
+        Scriptify::getWriter()->writeService($targetServicePath, $templateStr, $template == 'initd' ? 0755 : null);
 
         return true;
     }
@@ -141,7 +141,7 @@ class Daemonize
     }
 
     /**
-     * @throws DaemonizeException
+     * @throws ScriptifyException
      */
     public static function uninstall(string $svcName): void
     {
@@ -149,7 +149,7 @@ class Daemonize
             "/etc/init.d/$svcName",
             "/etc/init/$svcName.conf",
             "/etc/systemd/system/$svcName.service",
-            '/etc/daemonize/' . $svcName . '.env',
+            '/etc/scriptify/' . $svcName . '.env',
             '/etc/cron.d/' . $svcName,
         ];
 
@@ -157,21 +157,21 @@ class Daemonize
         foreach ($list as $service) {
             if (file_exists($service)) {
                 $found = true;
-                if (strpos($service, ".env") === false && !self::isDaemonizeService($service)) {
-                    throw new DaemonizeException("Service '$svcName' was not created by PHP Daemonize");
+                if (strpos($service, ".env") === false && !self::isScriptifyService($service)) {
+                    throw new ScriptifyException("Service '$svcName' was not created by Scriptify");
                 }
                 unlink($service);
             }
         }
 
         if (!$found) {
-            throw new DaemonizeException("Service '$svcName' does not exists");
+            throw new ScriptifyException("Service '$svcName' does not exists");
         }
 
         restore_error_handler();
     }
 
-    protected static function isDaemonizeService(string $filename): bool
+    protected static function isScriptifyService(string $filename): bool
     {
         set_error_handler(function ($number, $error) {
             throw new \Exception($error);
@@ -182,7 +182,7 @@ class Daemonize
         }
         $contents = file_get_contents($filename);
 
-        return (str_contains($contents, 'PHP_DAEMONIZE'));
+        return (str_contains($contents, 'PHP_SCRIPTIFY'));
     }
 
     public static function listServices(): array
@@ -197,7 +197,7 @@ class Daemonize
 
         foreach ($list as $svcType => $filenames) {
             foreach ($filenames as $filename) {
-                if (self::isDaemonizeService($filename)) {
+                if (self::isScriptifyService($filename)) {
                     $return[] = $svcType . ": " . 
                         str_replace(
                         '.service',
