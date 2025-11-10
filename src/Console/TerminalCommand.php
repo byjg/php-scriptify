@@ -27,6 +27,12 @@ class TerminalCommand extends Command
      */
     protected array $replContext = [];
 
+    /**
+     * Track namespace aliases from 'use' statements
+     * Format: ['Alias' => 'Full\\Namespace\\ClassName']
+     */
+    protected array $namespaceAliases = [];
+
     #[\Override]
     protected function configure(): void
     {
@@ -355,6 +361,16 @@ class TerminalCommand extends Command
                 continue;
             }
 
+            // Parse 'use' statements - if the code only contains use statements, don't execute
+            $onlyUseStatements = $this->parseUseStatements($code);
+            if ($onlyUseStatements) {
+                $buffer = '';
+                continue;
+            }
+
+            // Resolve class aliases based on stored 'use' statements
+            $code = $this->resolveClassAliases($code);
+
             // Wrap code in return if it's an expression (doesn't end with semicolon or brace)
             $lastChar = substr($code, -1);
             $wrappedCode = $code;
@@ -587,6 +603,84 @@ class TerminalCommand extends Command
     }
 
     /**
+     * Parse and store 'use' statements from code
+     * Returns true if the code only contains use statements (should not be executed)
+     */
+    protected function parseUseStatements(string $code): bool
+    {
+        $hasUseStatements = false;
+        $onlyUseStatements = true;
+
+        // Split code into lines and process each
+        $lines = explode("\n", $code);
+
+        foreach ($lines as $line) {
+            $line = trim($line);
+
+            // Skip empty lines and comments
+            if (empty($line) || str_starts_with($line, '//') || str_starts_with($line, '#')) {
+                continue;
+            }
+
+            // Match: use Full\Namespace\ClassName;
+            // Match: use Full\Namespace\ClassName as Alias;
+            if (preg_match('/^use\s+([a-zA-Z_\\\\][a-zA-Z0-9_\\\\]*)\s*(?:as\s+([a-zA-Z_][a-zA-Z0-9_]*))?\s*;?\s*$/', $line, $matches)) {
+                $fullName = $matches[1];
+                $alias = $matches[2] ?? null;
+
+                // If no alias provided, use the last part of the namespace as alias
+                if ($alias === null) {
+                    $parts = explode('\\', $fullName);
+                    $alias = end($parts);
+                }
+
+                // Store the alias mapping
+                $this->namespaceAliases[$alias] = $fullName;
+                $hasUseStatements = true;
+            } else {
+                // If we find a non-use statement, it's not only use statements
+                $onlyUseStatements = false;
+            }
+        }
+
+        // Return true if code only contains use statements (and should not be executed)
+        return $hasUseStatements && $onlyUseStatements;
+    }
+
+    /**
+     * Resolve class aliases in code based on stored 'use' statements
+     */
+    protected function resolveClassAliases(string $code): string
+    {
+        if (empty($this->namespaceAliases)) {
+            return $code;
+        }
+
+        // Replace aliased class names with their full namespace
+        // Match patterns like: new Alias, Alias::, Alias\, (Alias, <Alias, Alias $var, : Alias
+        foreach ($this->namespaceAliases as $alias => $fullName) {
+            // Match class usage patterns (but not inside strings or comments)
+            // This is a simplified approach - not perfect but covers most cases
+            $patterns = [
+                '/\bnew\s+' . preg_quote($alias, '/') . '\b/' => 'new ' . $fullName,
+                '/\b' . preg_quote($alias, '/') . '::/' => $fullName . '::',
+                '/\binstanceof\s+' . preg_quote($alias, '/') . '\b/' => 'instanceof ' . $fullName,
+                '/\(\s*' . preg_quote($alias, '/') . '\s+\$/' => '(' . $fullName . ' $',
+                '/,\s*' . preg_quote($alias, '/') . '\s+\$/' => ', ' . $fullName . ' $',
+                '/:\s*' . preg_quote($alias, '/') . '\b/' => ': ' . $fullName,
+                '/\bextends\s+' . preg_quote($alias, '/') . '\b/' => 'extends ' . $fullName,
+                '/\bimplements\s+' . preg_quote($alias, '/') . '\b/' => 'implements ' . $fullName,
+            ];
+
+            foreach ($patterns as $pattern => $replacement) {
+                $code = preg_replace($pattern, $replacement, $code);
+            }
+        }
+
+        return $code;
+    }
+
+    /**
      * Extract variables from code buffer
      */
     protected function extractVariablesFromCode(string $code): void
@@ -715,7 +809,8 @@ class TerminalCommand extends Command
             $completions = array_merge(
                 $this->getPhpFunctions(),
                 $this->getPhpKeywords(),
-                $this->getLoadedClasses()
+                $this->getLoadedClasses(),
+                array_keys($this->namespaceAliases)  // Add namespace aliases
             );
 
             // Filter by input prefix (case-insensitive for functions/classes)
