@@ -30,7 +30,7 @@ use ByJG\Scriptify\Console\TerminalCommand;
 use ByJG\Scriptify\Console\UninstallCommand;
 use Symfony\Component\Console\Application;
 
-$application = new Application('Scriptify by JG', '4.9.1');
+$application = new Application('Scriptify ByJG', '6.0');
 $application->add(new InstallCommand());
 $application->add(new UninstallCommand());
 $application->add(new RunCommand());
