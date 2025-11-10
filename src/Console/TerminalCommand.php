@@ -50,6 +50,13 @@ class TerminalCommand extends Command
                 InputOption::VALUE_IS_ARRAY | InputOption::VALUE_OPTIONAL,
                 'Set environment variables (can be used multiple times)',
                 []
+            )
+            ->addOption(
+                'preload',
+                'p',
+                InputOption::VALUE_OPTIONAL,
+                'Path to a PHP file with commands to execute before starting the terminal',
+                null
             );
     }
 
@@ -58,6 +65,7 @@ class TerminalCommand extends Command
     {
         $serviceName = $input->getArgument('service');
         $envOptions = $input->getOption('env');
+        $preloadFile = $input->getOption('preload');
 
         // Load environment variables
         $environment = $this->loadEnvironment($serviceName, $envOptions, $output);
@@ -95,7 +103,7 @@ class TerminalCommand extends Command
         }
 
         // Start custom REPL with prompt
-        return $this->startRepl($output);
+        return $this->startRepl($output, $preloadFile);
     }
 
     /**
@@ -202,13 +210,122 @@ class TerminalCommand extends Command
     }
 
     /**
+     * Process preload file and execute commands
+     */
+    protected function processPreloadFile(string $preloadFile, OutputInterface $output): bool
+    {
+        if (!file_exists($preloadFile)) {
+            $output->writeln("<error>Preload file not found: $preloadFile</error>");
+            return false;
+        }
+
+        $content = file_get_contents($preloadFile);
+        if ($content === false) {
+            $output->writeln("<error>Could not read preload file: $preloadFile</error>");
+            return false;
+        }
+
+        $output->writeln("<info>Loading commands from: $preloadFile</info>");
+
+        // Remove PHP opening tags if present
+        $content = preg_replace('/^\s*<\?php\s*/i', '', $content);
+        $content = preg_replace('/\s*\?>\s*$/', '', $content);
+
+        // Split into lines and process each command
+        $lines = explode("\n", $content);
+        $buffer = '';
+
+        foreach ($lines as $line) {
+            $line = rtrim($line);
+
+            // Skip empty lines and comments
+            if (empty($line) || str_starts_with(trim($line), '//') || str_starts_with(trim($line), '#')) {
+                continue;
+            }
+
+            // Accumulate buffer
+            $buffer .= $line . "\n";
+
+            // Check if we have a complete statement
+            $openBraces = substr_count($buffer, '{') - substr_count($buffer, '}');
+            $openBrackets = substr_count($buffer, '[') - substr_count($buffer, ']');
+            $openParens = substr_count($buffer, '(') - substr_count($buffer, ')');
+
+            if ($openBraces > 0 || $openBrackets > 0 || $openParens > 0) {
+                continue; // Need more lines
+            }
+
+            // We have a complete statement
+            $code = trim($buffer);
+            if ($code === '') {
+                $buffer = '';
+                continue;
+            }
+
+            // Parse 'use' statements
+            $onlyUseStatements = $this->parseUseStatements($code);
+            if ($onlyUseStatements) {
+                $buffer = '';
+                continue;
+            }
+
+            // Resolve class aliases
+            $code = $this->resolveClassAliases($code);
+
+            // Extract variables
+            $this->extractVariablesFromCode($code);
+
+            // Execute the code
+            try {
+                extract($this->replContext);
+
+                // Don't wrap in return for preload
+                $result = eval($code);
+
+                // Capture variables
+                $currentVars = get_defined_vars();
+                unset($currentVars['result'], $currentVars['code'], $currentVars['this'],
+                      $currentVars['output'], $currentVars['preloadFile'], $currentVars['content'],
+                      $currentVars['lines'], $currentVars['line'], $currentVars['buffer'],
+                      $currentVars['openBraces'], $currentVars['openBrackets'], $currentVars['openParens'],
+                      $currentVars['onlyUseStatements'], $currentVars['currentVars']);
+
+                $this->replContext = $currentVars;
+
+                // Update variableValues for object completion
+                foreach ($currentVars as $varName => $value) {
+                    if (is_object($value)) {
+                        $this->variableValues[$varName] = $value;
+                    }
+                }
+            } catch (\Throwable $e) {
+                $output->writeln("<error>Error executing preload command: " . $e->getMessage() . "</error>");
+                $output->writeln("<comment>  in line: $code</comment>");
+            }
+
+            $buffer = '';
+        }
+
+        $output->writeln("<info>Preload completed successfully</info>");
+        return true;
+    }
+
+    /**
      * Start a custom REPL (Read-Eval-Print Loop) with prompt
      */
-    protected function startRepl(OutputInterface $output): int
+    protected function startRepl(OutputInterface $output, ?string $preloadFile = null): int
     {
         echo "Scriptify Interactive Terminal\n";
         echo "Type 'exit' or press Ctrl+D to quit\n";
         echo "\n";
+
+        // Process preload file if provided
+        if ($preloadFile !== null) {
+            if (!$this->processPreloadFile($preloadFile, $output)) {
+                return 1;
+            }
+            echo "\n";
+        }
 
         // Enable readline history and smart autocompletion
         $self = $this;

@@ -68,6 +68,40 @@ You can combine both approaches (command line options override service values):
 scriptify terminal myservice --env EXTRA_VAR=value
 ```
 
+## Preloading Commands
+
+You can preload commands from a file to automatically set up your terminal environment:
+
+```bash
+scriptify terminal --preload .scriptify-preload.php
+# or using the short option
+scriptify terminal -p .scriptify-preload.php
+```
+
+### Example Preload File
+
+Create a `.scriptify-preload.php` file:
+
+```php
+<?php
+// Define commonly used namespace imports
+use DateTime;
+use DateTimeImmutable;
+use App\Models\User;
+use App\Services\MyService;
+
+// Define helper variables
+$today = new DateTime();
+
+// Define helper functions
+function dd($var) {
+    var_dump($var);
+    die();
+}
+```
+
+Now when you start the terminal with `--preload`, all these imports, variables, and functions will be available immediately.
+
 ## Features
 
 - **Interactive Prompt**: `php>` for single-line input, `php*` for multi-line continuation
@@ -76,6 +110,8 @@ scriptify terminal myservice --env EXTRA_VAR=value
 - **Auto-return Expressions**: Typing `2 + 2` automatically displays the result
 - **Error Handling**: Parse errors and exceptions don't crash the session
 - **Exit Commands**: Type `exit`, `quit`, or press Ctrl+D to quit
+- **Namespace Support**: Use `use` statements to import classes, and they persist across commands
+- **Preload Files**: Load common imports and helper functions from a file
 
 ## Autoloader Discovery
 
