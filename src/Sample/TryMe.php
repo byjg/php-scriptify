@@ -1,14 +1,14 @@
 <?php
 
-namespace ByJG\Daemon\Sample;
+namespace ByJG\Scriptify\Sample;
 
 /**
- * This is a sample class to test the Daemonize package
+ * This is a sample class to test the Scriptify package
  */
 class TryMe
 {
     /**
-     * This is a sample method to test the Daemonize package.
+     * This is a sample method to test the Scriptify package.
      * This will write the current date and time to the file /tmp/tryme.txt
      */
     public function process(): void
@@ -23,7 +23,7 @@ class TryMe
      * @param string $arg1
      * @param string|null $arg2
      */
-    public function ping(string $arg1, string $arg2 = null): void
+    public function ping(string $arg1, ?string $arg2 = null): void
     {
         $result = "pong - $arg1 - $arg2\n";
         echo $result;

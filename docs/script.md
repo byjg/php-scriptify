@@ -1,4 +1,8 @@
-# Call a PHP method from command line
+---
+sidebar_position: 1
+---
+
+# Call a PHP method from the command line
 
 Assuming you have a class and a method like this:
 
@@ -11,7 +15,7 @@ class MyExistingClass
 	// ...
 
     /**
-     * This is sample method 
+     * This is a sample method 
      * @param string $param1
      * @param string $param2
      */
@@ -24,10 +28,10 @@ class MyExistingClass
 }
 ```
 
-You can run this method from command line with the following command:
+You can run this method from the command line with the following command:
 
 ```bash
-daemonize run \
+scriptify run \
     "\\Some\\Name\\Space\\MyExistingClass::someExistingMethod" \
     --arg value1 \
     --arg value2
@@ -36,7 +40,7 @@ daemonize run \
 If is necessary to execute this method in a specific environment you can use the `--bootstrap` and `--rootdir` parameters:
 
 ```bash
-daemonize run \
+scriptify run \
     "\\Some\\Name\\Space\\MyExistingClass::someExistingMethod" \
     --bootstrap "relative/path/to/bootstrap.php" \
     --rootdir "/path/to/root" \

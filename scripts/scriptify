@@ -1,0 +1,40 @@
+#!/usr/bin/env php
+<?php
+
+$memoryLimit = getenv('SCRIPTIFY_MEMORY_LIMIT');
+if (!empty($memoryLimit)) {
+    ini_set('memory_limit', $memoryLimit);
+} else {
+    ini_set('memory_limit', '-1');
+}
+
+$autoload = getenv('SCRIPTIFY_BOOTLOADER');
+if (empty($autoload)) {
+    $autoload = realpath(__DIR__ . "/../vendor/autoload.php");
+    if (!file_exists($autoload)) {
+        $autoload = realpath(__DIR__ . "/../../../autoload.php");
+    }
+}
+if (!file_exists($autoload)) {
+    echo "Bootloader '$autoload' not found?";
+    echo
+    exit(255);
+}
+require_once($autoload);
+
+use ByJG\Scriptify\Console\CallCommand;
+use ByJG\Scriptify\Console\InstallCommand;
+use ByJG\Scriptify\Console\RunCommand;
+use ByJG\Scriptify\Console\ServicesCommand;
+use ByJG\Scriptify\Console\TerminalCommand;
+use ByJG\Scriptify\Console\UninstallCommand;
+use Symfony\Component\Console\Application;
+
+$application = new Application('Scriptify ByJG', '6.0');
+$application->add(new InstallCommand());
+$application->add(new UninstallCommand());
+$application->add(new RunCommand());
+$application->add(new CallCommand());
+$application->add(new ServicesCommand());
+$application->add(new TerminalCommand());
+$application->run();

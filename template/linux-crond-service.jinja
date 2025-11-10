@@ -1,0 +1,6 @@
+# /etc/cron.d/{{ svcname }}: DO NOT REMOVE OR CHANGE THIS LINE - PHP_SCRIPTIFY
+
+SHELL=/bin/bash
+
+* * * * *     root     {{ envcmdline }} {{ phppath }} {{ scriptifyservice }} run "{{ class }}" --bootstrap "{{ bootstrap }}" --rootdir "{{ rootpath }}" {{ consoleargs }} 
+
