@@ -790,7 +790,11 @@ class TerminalCommand extends Command
             ];
 
             foreach ($patterns as $pattern => $replacement) {
-                $code = preg_replace($pattern, $replacement, $code);
+                $result = preg_replace($pattern, $replacement, $code);
+                // preg_replace can return null on error, so we need to check
+                if ($result !== null) {
+                    $code = $result;
+                }
             }
         }
 
