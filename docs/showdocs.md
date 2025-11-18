@@ -1,9 +1,13 @@
-# Show documentation
+---
+sidebar_position: 5
+---
 
-To show the documentation, you can use the following command:
+# Show method documentation
+
+To show the documentation for a PHP method, use the `--showdocs` option:
 
 ```bash
-daemonize run \
+scriptify run \
     "\\Some\\Name\\Space\\MyExistingClass::someExistingMethod" \
     --showdocs
 ```
@@ -11,8 +15,8 @@ daemonize run \
 ## Example
 
 ```bash
-$ daemonize run \
-    "\\ByJG\\Daemon\\Sample\\TryMe::process" \
+$ scriptify run \
+    "\\ByJG\\Scriptify\\Sample\\TryMe::ping" \
     --showdocs
 ```
 
@@ -23,6 +27,11 @@ This will return a pong message with the arguments passed and write to the file 
 @param string $arg1
 @param string|null $arg2
 
-Usage: 
-daemonize run "\\ByJG\\Daemon\\Sample\\TryMe::ping" --arg <arg1> --arg [arg2] 
+Usage:
+scriptify run "\\ByJG\\Scriptify\\Sample\\TryMe::ping" --arg <arg1> --arg [arg2]
 ```
+
+The `--showdocs` option reads the PHPDoc comments from your method and displays:
+- Method description
+- Parameter information (types, names, whether they're optional)
+- Usage examples with the correct syntax
