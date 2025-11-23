@@ -162,9 +162,9 @@ class TerminalCommand extends Command
 
             // Parse KEY=VALUE
             if (str_contains($line, '=')) {
-                [$key, $value] = explode('=', $line, 2);
-                $key = trim($key);
-                $value = trim($value);
+                $parts = explode('=', $line, 2);
+                $key = trim($parts[0]);
+                $value = trim($parts[1] ?? '');
 
                 // Remove quotes if present
                 if ((str_starts_with($value, '"') && str_ends_with($value, '"')) ||
@@ -193,8 +193,9 @@ class TerminalCommand extends Command
         }
 
         // Try default locations
+        $cwd = getcwd();
         $defaultPaths = [
-            getcwd() . '/vendor/autoload.php',
+            ($cwd !== false ? $cwd : '.') . '/vendor/autoload.php',
             __DIR__ . '/../../vendor/autoload.php',
             __DIR__ . '/../../../../autoload.php'
         ];
@@ -228,8 +229,8 @@ class TerminalCommand extends Command
         $output->writeln("<info>Loading commands from: $preloadFile</info>");
 
         // Remove PHP opening tags if present
-        $content = preg_replace('/^\s*<\?php\s*/i', '', $content);
-        $content = preg_replace('/\s*\?>\s*$/', '', $content);
+        $content = preg_replace('/^\s*<\?php\s*/i', '', $content) ?? '';
+        $content = preg_replace('/\s*\?>\s*$/', '', $content) ?? '';
 
         // Split into lines and process each command
         $lines = explode("\n", $content);

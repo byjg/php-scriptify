@@ -57,7 +57,8 @@ class Scriptify
             throw new \Exception("Template '$templatePath' not found");
         }
 
-        if (!file_exists(realpath($curdir)) && $check) {
+        $realpathCurdir = realpath($curdir);
+        if (($realpathCurdir === false || !file_exists($realpathCurdir)) && $check) {
             throw new \Exception("RootPath '" . $curdir . "' not found. Use an absolute path. e.g. /projects/example");
         }
 
@@ -66,9 +67,9 @@ class Scriptify
         }
 
         $autoload = realpath(__DIR__ . "/../vendor/autoload.php");
-        if (!file_exists($autoload)) {
+        if ($autoload === false || !file_exists($autoload)) {
             $autoload = realpath(__DIR__ . "/../../../autoload.php");
-            if (!file_exists($autoload) && $check) {
+            if (($autoload === false || !file_exists($autoload)) && $check) {
                 throw new \Exception('Scriptify autoload not found. Did you run `composer dump-autload`?');
             }
         }
@@ -82,10 +83,11 @@ class Scriptify
 
         $scriptifyService = realpath(__DIR__ . "/../scripts/scriptify");
 
+        $classNameStr = is_string($className) ? $className : (string)$className;
         $vars = [
             'description' => $description,
             'daemonbootstrap' => $autoload,
-            'class' => str_replace("\\", "\\\\", $className),
+            'class' => str_replace("\\", "\\\\", $classNameStr),
             'bootstrap' => $bootstrap,
             'svcname' => $svcName,
             'rootpath' => realpath($curdir),
@@ -110,25 +112,38 @@ class Scriptify
             )
         ];
 
-        $templateObj = new Template(file_get_contents($templatePath));
-        $templateStr = $templateObj->render($vars);
+        $templateContent = file_get_contents($templatePath);
+        if ($templateContent === false) {
+            throw new \Exception("Could not read template file: $templatePath");
+        }
+        $templateObj = new Template($templateContent);
+        $templateResult = $templateObj->render($vars);
+        if (!is_string($templateResult)) {
+            throw new \Exception("Template rendering failed - expected string, got " . gettype($templateResult));
+        }
+        $templateStr = $templateResult;
 
         // Check if is OK
         if ($check) {
             require_once($vars['bootstrap']);
-            $classParts = explode('::', str_replace("\\\\", "\\", $vars['class']));
+            $classString = (string)$vars['class'];
+            $classParts = explode('::', str_replace("\\\\", "\\", $classString));
             if (!class_exists($classParts[0])) {
                 throw new \Exception('Could not find class ' . $classParts[0]);
             }
             $className = $classParts[0];
             $classTest = new $className();
-            if (!method_exists($classTest, $classParts[1])) {
-                throw new \Exception('Could not find method ' . $vars['class']);
+            if (!isset($classParts[1]) || !method_exists($classTest, $classParts[1])) {
+                throw new \Exception('Could not find method ' . $classString);
             }
         }
 
-        Scriptify::getWriter()->writeEnvironment($environmentPrepared, $environment);
-        Scriptify::getWriter()->writeService($targetServicePath, $templateStr, $template == 'initd' ? 0755 : null);
+        $writer = Scriptify::getWriter();
+        if ($writer === null) {
+            throw new \Exception('Writer not initialized');
+        }
+        $writer->writeEnvironment($environmentPrepared, $environment);
+        $writer->writeService($targetServicePath, $templateStr, $template == 'initd' ? 0755 : null);
 
         return true;
     }
@@ -174,6 +189,9 @@ class Scriptify
             return false;
         }
         $contents = file_get_contents($filename);
+        if ($contents === false) {
+            return false;
+        }
 
         return (str_contains($contents, 'PHP_SCRIPTIFY'));
     }
@@ -189,6 +207,9 @@ class Scriptify
         $return = [];
 
         foreach ($list as $svcType => $filenames) {
+            if ($filenames === false) {
+                continue;
+            }
             foreach ($filenames as $filename) {
                 if (self::isScriptifyService($filename)) {
                     $return[] = $svcType . ": " . 

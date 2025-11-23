@@ -67,14 +67,14 @@ class Runner
     public function showDocs(): void
     {
         $reflection = new ReflectionClass($this->instance);
-        $method = $reflection->getMethod($this->methodName);
+        $method = $reflection->getMethod($this->methodName ?? '');
         $docs = $method->getDocComment();
 
         $docs = preg_replace('/( *\/\*\*[\r\n]| *\*\/? *)/', '', $docs);
 
         // get the current script name
         $docs .= "\nUsage: \n";
-        $docs .= $_SERVER['argv'][0] . " run \"" . str_replace('\\', '\\\\', $this->className . "::" . $this->methodName) . "\" ";
+        $docs .= ($_SERVER['argv'][0] ?? 'scriptify') . " run \"" . str_replace('\\', '\\\\', $this->className . "::" . $this->methodName) . "\" ";
 
         foreach ($method->getParameters() as $param) {
             $delimiter = $param->isOptional() ? "[]" : "<>";
