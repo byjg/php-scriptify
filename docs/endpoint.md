@@ -1,6 +1,10 @@
-# Call a GET RESt endpoint from command line
+---
+sidebar_position: 3
+---
 
-Calling an endpoint from command line without actualy doing a HTTP Request is very simple.
+# Call a REST endpoint from the command line
+
+Calling an endpoint from the command line without actually doing an HTTP Request is straightforward.
 
 Your endpoint must be implemented using any PHP framework that handles the HTTP request and response.
 
@@ -37,7 +41,7 @@ The example above creates a simple REST endpoint `/testclosure` that returns a J
 To call this endpoint from the command line, you can use the following command:
 
 ```bash
-daemonize call \
+scriptify call \
     /testclosure \
     --controller "app.php" \
     --http-get "arg=value1"

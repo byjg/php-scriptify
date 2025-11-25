@@ -1,8 +1,8 @@
 <?php
 
-namespace ByJG\Daemon\Console;
+namespace ByJG\Scriptify\Console;
 
-use ByJG\Daemon\Runner;
+use ByJG\Scriptify\Runner;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -11,6 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class RunCommand extends Command
 {
+    #[\Override]
     protected function configure(): void
     {
         $this
@@ -57,6 +58,7 @@ class RunCommand extends Command
 
     }
 
+    #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $className = $input->getArgument('classname');

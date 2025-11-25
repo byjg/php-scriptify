@@ -1,6 +1,6 @@
 <?php
 
-namespace ByJG\Daemon;
+namespace ByJG\Scriptify;
 
 use Exception;
 use ReflectionClass;
@@ -11,7 +11,7 @@ class Runner
 
     const SLEEP_SERVICE = 1000;
 
-    const BASE_LOG_PATH = "/var/log/daemonize";
+    const BASE_LOG_PATH = "/var/log/scriptify";
 
     protected $stdIn = STDIN;
     protected $stdOut = STDOUT;
@@ -64,17 +64,17 @@ class Runner
     /**
      * @throws ReflectionException
      */
-    public function showDocs()
+    public function showDocs(): void
     {
         $reflection = new ReflectionClass($this->instance);
-        $method = $reflection->getMethod($this->methodName);
+        $method = $reflection->getMethod($this->methodName ?? '');
         $docs = $method->getDocComment();
 
         $docs = preg_replace('/( *\/\*\*[\r\n]| *\*\/? *)/', '', $docs);
 
         // get the current script name
         $docs .= "\nUsage: \n";
-        $docs .= $_SERVER['argv'][0] . " run \"" . str_replace('\\', '\\\\', $this->className . "::" . $this->methodName) . "\" ";
+        $docs .= ($_SERVER['argv'][0] ?? 'scriptify') . " run \"" . str_replace('\\', '\\\\', $this->className . "::" . $this->methodName) . "\" ";
 
         foreach ($method->getParameters() as $param) {
             $delimiter = $param->isOptional() ? "[]" : "<>";

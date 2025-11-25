@@ -1,12 +1,16 @@
-# Install a PHP class/method call as a daemon
+---
+sidebar_position: 2
+---
 
-This option allows you to create a daemon process from any PHP class. 
+# Install a PHP class/method as a service
 
-## Test the class/method call from command line
-First you need to test how ro call the method from command line:
+This option allows you to create a system service from any PHP class. 
+
+## Test the class/method call from the command line
+First, you need to test how ro call the method from the command line:
 
 ```bash
-daemonize run \
+scriptify run \
     "\\Some\\Name\\Space\\MyExistingClass::someExistingMethod" \
     --rootdir "/path/to/root" \
     --arg "value1" \
@@ -14,10 +18,10 @@ daemonize run \
 ```
 
 ## Create the daemon process
-If everything is ok, now you can "daemonize" this class (as root):
+If everything is ok, now you can "scriptify" this class (as root):
 
 ```php
-daemonize install --template=systemd mydaemon \
+scriptify install --template=systemd mydaemon \
     --class "\\Some\\Name\\Space\\MyExistingClass::someExistingMethod" \
     --rootdir "/path/to/root" \
     --arg "value1" \
@@ -34,10 +38,10 @@ daemonize install --template=systemd mydaemon \
 
 ## Manage the daemon process
 
-List all "daemonized" php classes:
+List all "scriptifyd" php classes:
 
 ```php
-daemonize services --only-names
+scriptify services --only-names
 ```
 
 Start or stop the linux services:
@@ -50,8 +54,8 @@ sudo service mydaemon start  # or stop, status or restart
 
 ## Uninstalling
 
-For uninstall just type:
+For uninstallation type:
 
 ```bash
-daemonize uninstall mydamon
+scriptify uninstall mydamon
 ```
