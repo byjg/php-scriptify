@@ -1,10 +1,4 @@
----
-tags: [php, cli]
----
-
 # Scriptify - CLI Script Transformer
-
-Transform any PHP class into an executable script callable from the command line without changes or refactoring.
 
 [![Sponsor](https://img.shields.io/badge/Sponsor-%23ea4aaa?logo=githubsponsors&logoColor=white&labelColor=0d1117)](https://github.com/sponsors/byjg)
 [![Build Status](https://github.com/byjg/php-scriptify/actions/workflows/phpunit.yml/badge.svg?branch=master)](https://github.com/byjg/php-scriptify/actions/workflows/phpunit.yml)
@@ -12,6 +6,8 @@ Transform any PHP class into an executable script callable from the command line
 [![GitHub source](https://img.shields.io/badge/Github-source-informational?logo=github)](https://github.com/byjg/php-scriptify/)
 [![GitHub license](https://img.shields.io/github/license/byjg/php-scriptify.svg)](https://opensource.byjg.com/opensource/licensing.html)
 [![GitHub release](https://img.shields.io/github/release/byjg/php-scriptify.svg)](https://github.com/byjg/php-scriptify/releases/)
+
+Transform any PHP class into an executable script callable from the command line without changes or refactoring.
 
 ## Features
 
@@ -24,13 +20,13 @@ Scriptify allows you to:
 
 ## Documentation
 
-- [Call a PHP method from the command line](script)
-- [Install a PHP class/method as a service](install)
-- [Call a REST endpoint from the command line](endpoint)
-- [Interactive PHP terminal](terminal)
-- [Show method documentation](showdocs)
-- [Environment variables](environment)
-- [Play with the service](play)
+- [Call a PHP method from the command line](docs/script.md)
+- [Install a PHP class/method as a service](docs/install.md)
+- [Call a REST endpoint from the command line](docs/endpoint.md)
+- [Interactive PHP terminal](docs/terminal.md)
+- [Show method documentation](docs/showdocs.md)
+- [Environment variables](docs/environment.md)
+- [Play with the service](docs/play.md)
 
 ## Installation
 
