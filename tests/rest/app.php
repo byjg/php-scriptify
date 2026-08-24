@@ -1,6 +1,6 @@
 <?php
 
-use ByJG\RestServer\HttpRequestHandler;
+use ByJG\RestServer\Server;
 use ByJG\RestServer\OutputProcessor\JsonOutputProcessor;
 use ByJG\RestServer\Route\Route;
 use ByJG\RestServer\Route\RouteList;
@@ -13,12 +13,12 @@ $routeDefinition->addRoute(Route::get("/testclosure")
     ->withClosure(function ($response, $request) {
         $result = [
             "result" => "OK",
-            "arg" => $request->get("arg")
+            "arg" => $request->query("arg")
         ];
         $response->write($result);
         file_put_contents('/tmp/tryme_test.txt', json_encode($result, FILE_APPEND) . "\n");
     })
 );
 
-$restServer = new HttpRequestHandler();
+$restServer = new Server();
 $restServer->handle($routeDefinition);
