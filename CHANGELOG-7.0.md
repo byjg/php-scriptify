@@ -5,7 +5,15 @@
 
 ## Breaking Changes
 
-- None.
+- `symfony/console` is now `^7.4 || ^8.0`, up from `^5.4|^6.2|^7.0`.
+
+  Console 8.0 removed `Application::add()`. Its replacement, `addCommand()`, only
+  exists from 7.4 on, so spanning both would mean picking the method at runtime.
+  Raising the floor to 7.4 keeps the console bootstrap a plain call.
+
+  The lower bounds this drops were already unusable on this branch: console 5.4
+  conflicts with `psr/log >= 3`, which `byjg/restserver ^7.0` requires, and
+  6.x through 7.3 conflict with the `symfony/yaml` 8.x the toolchain pulls in.
 
 ## Requirements
 
