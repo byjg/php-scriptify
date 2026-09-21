@@ -15,6 +15,24 @@
   conflicts with `psr/log >= 3`, which `byjg/restserver ^7.0` requires, and
   6.x through 7.3 conflict with the `symfony/yaml` 8.x the toolchain pulls in.
 
+## New
+
+- Classes can now be resolved through a [PSR-11](https://www.php-fig.org/psr/psr-11/)
+  container, so a class with constructor dependencies can be scriptified without
+  being changed.
+
+  The protocol is the `--bootstrap` file: if it *returns* a `ContainerInterface`,
+  Scriptify asks it for the class and falls back to `new` for anything the container
+  does not know. `run` and the `install` check resolve identically, so `install`
+  never rejects a class `run` can execute. See [docs/container.md](docs/container.md).
+
+  Nothing changes without opting in: the default bootstrap, `vendor/autoload.php`,
+  returns Composer's `ClassLoader`, which is not a container.
+
+- `psr/container` is now a declared dependency. It was already in the tree through
+  `symfony/service-contracts`, but `Runner` names the interface in its public
+  signature now, so relying on a transitive dependency would be luck.
+
 ## Requirements
 
 - PHP 8.3, 8.4, 8.5 and 8.6 are now supported: `"php": ">=8.3 <8.7"`.

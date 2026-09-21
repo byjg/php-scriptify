@@ -3,6 +3,7 @@
 namespace ByJG\Scriptify;
 
 use Exception;
+use Psr\Container\ContainerInterface;
 use ReflectionClass;
 use ReflectionException;
 
@@ -25,8 +26,12 @@ class Runner
 
     protected array $consoleArgs = [];
 
-    public function __construct(string $object, array $consoleArgs = [], bool $daemon = true)
-    {
+    public function __construct(
+        string $object,
+        array $consoleArgs = [],
+        bool $daemon = true,
+        ?ContainerInterface $container = null
+    ) {
         $this->daemon = $daemon;
 
         $arr = explode("::", $object);
@@ -37,10 +42,36 @@ class Runner
         $this->consoleArgs = $consoleArgs;
 
         // Instantiate the class
+        $this->instance = self::resolve($className, $container);
+    }
+
+    /**
+     * Build the object whose method will be called.
+     *
+     * Without a container this is `new $className()`, which is what Scriptify has
+     * always done: a class with no constructor dependencies needs no container at
+     * all. When a PSR-11 container is given and knows the class, the container
+     * wins -- that is what allows a class with constructor dependencies to be
+     * scriptified without changing it.
+     *
+     * A class the container does not know falls back to `new`. Errors thrown by
+     * the container are NOT caught: an entry that exists but is misconfigured is a
+     * configuration problem, and hiding it behind `new` would surface much later,
+     * as a confusing error somewhere else.
+     *
+     * @throws Exception
+     */
+    public static function resolve(string $className, ?ContainerInterface $container = null): mixed
+    {
         if (!class_exists($className)) {
             throw new \Exception("Could not found the class $className");
         }
-        $this->instance = new $className();
+
+        if ($container !== null && $container->has($className)) {
+            return $container->get($className);
+        }
+
+        return new $className();
     }
 
     public function execute(): void

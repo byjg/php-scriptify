@@ -11,6 +11,7 @@
   ],
   "require": {
     "symfony/console": "^7.4 || ^8.0",
+    "psr/container": "^1.1 || ^2.0",
     "byjg/jinja-php": "^7.0",
     "php": ">=8.3 <8.7",
     "ext-readline": "*"

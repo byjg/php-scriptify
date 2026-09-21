@@ -3,6 +3,7 @@
 namespace ByJG\Scriptify;
 
 use ByJG\JinjaPhp\Template;
+use Psr\Container\ContainerInterface;
 
 class Scriptify
 {
@@ -125,14 +126,18 @@ class Scriptify
 
         // Check if is OK
         if ($check) {
-            require_once($vars['bootstrap']);
+            // Same container protocol as `run`: if the check built the object
+            // differently, install would reject a class that `run` can execute.
+            $loaded = require_once($vars['bootstrap']);
+            $container = $loaded instanceof ContainerInterface ? $loaded : null;
+
             $classString = (string)$vars['class'];
             $classParts = explode('::', str_replace("\\\\", "\\", $classString));
             if (!class_exists($classParts[0])) {
                 throw new \Exception('Could not find class ' . $classParts[0]);
             }
             $className = $classParts[0];
-            $classTest = new $className();
+            $classTest = Runner::resolve($className, $container);
             if (!isset($classParts[1]) || !method_exists($classTest, $classParts[1])) {
                 throw new \Exception('Could not find method ' . $classString);
             }
