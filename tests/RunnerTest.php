@@ -130,6 +130,30 @@ class RunnerTest extends TestCase
     }
 
     /**
+     * The documented way of naming a class carries a leading backslash
+     * ("\\Some\\Class::method"). class_exists() accepts it, so without
+     * normalisation the container would miss every entry and fall back to `new`
+     * silently -- the failure would look like "the container is not being used".
+     */
+    public function testLeadingBackslashStillFindsTheContainerEntry(): void
+    {
+        $container = $this->container([
+            RunnerContainerFixture::class => new RunnerContainerFixture('Hello'),
+        ]);
+
+        $runner = new \ByJG\Scriptify\Runner(
+            '\\' . RunnerContainerFixture::class . '::greet',
+            ['World'],
+            false,
+            $container
+        );
+
+        ob_start();
+        $runner->execute();
+        $this->assertSame("Hello, World!\n", ob_get_clean());
+    }
+
+    /**
      * Same class, no container: the fallback is `new`, so the missing constructor
      * argument still fails. This is the behaviour container support opts out of --
      * it is not silently changed for anyone else.

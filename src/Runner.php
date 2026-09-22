@@ -67,8 +67,15 @@ class Runner
             throw new \Exception("Could not found the class $className");
         }
 
-        if ($container !== null && $container->has($className)) {
-            return $container->get($className);
+        // Scriptify's own convention writes the class with a leading backslash
+        // ("\\Some\\Class::method", as every example in the docs does) and
+        // class_exists() accepts it. A PSR-11 id does not carry one -- ::class
+        // never produces it -- so passing the name through unchanged would miss
+        // every container entry and fall back to `new` without a word.
+        $containerId = ltrim($className, '\\');
+
+        if ($container !== null && $container->has($containerId)) {
+            return $container->get($containerId);
         }
 
         return new $className();
