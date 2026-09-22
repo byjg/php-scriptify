@@ -64,13 +64,29 @@ before the `return` — setting an environment variable, choosing a profile, loa
 
 ### Your class has to be registered
 
-Scriptify asks the container `has($className)` and only calls `get()` when the answer
-is yes. **A class the container does not know falls back to `new`** — which means a
-class with required constructor arguments still fails, container or no container.
+Offering a container is a statement: *build my objects this way*. Scriptify takes it
+literally. It asks `has($className)`, and a class the container does not hold is
+**refused** — it is not quietly built with `new` instead:
+
+```plaintext
+Cannot build Some\Name\Space\MyExistingClass: the container has no entry for
+"Some\Name\Space\MyExistingClass". Register it, or drop the container from the
+--bootstrap file to have Scriptify build it with new.
+```
+
+That is deliberate, and it holds even for a class `new` could have built. Guessing
+would be worse than it looks: a class whose dependencies are all *optional* —
+`__construct(?LoggerInterface $logger = null)` — would be built, would run, and would
+run without the collaborators the container would have injected. Working, wrong, and
+silent. Refusing turns that into one line at the start.
 
 So if your container registers services by pattern or by explicit binding, make sure
 the class you are scriptifying is actually covered. This is the single most common
 reason for "I added the container and nothing changed".
+
+If some of your classes belong in the container and others do not, use two bootstrap
+files — one that returns the container, one that only requires the autoloader — and
+point `--bootstrap` at whichever fits the class you are running.
 
 ## Part 2 — on the command line: point to it
 
@@ -107,12 +123,19 @@ how it would be built; that is decided when it runs.
 |---|---|
 | No `--bootstrap` given (default `vendor/autoload.php`) | `new $className()` |
 | Bootstrap returns something that is not a PSR-11 container | `new $className()` |
+| No container, and the constructor takes arguments | stops, saying no container was offered |
 | Container returned, `has($className)` is **true** | `$container->get($className)` |
-| Container returned, `has($className)` is **false** | `new $className()` |
+| Container returned, `has($className)` is **false** | stops, naming the id it looked up |
 
-Errors thrown by `get()` are **not** caught. If the entry exists but is misconfigured,
-you see your container's own error — falling back to `new` there would replace a
-configuration problem with a confusing failure somewhere else.
+In short: no container means `new`, exactly as before; a container means the
+container, with no second guess.
+
+The class name is normalised before the lookup: Scriptify's own convention writes it
+with a leading backslash (`"\\Some\\Class::method"`), and a PSR-11 id does not
+carry one.
+
+Errors thrown by `get()` are **not** caught either. If the entry exists but is
+misconfigured, you see your container's own error, at the point where it happened.
 
 ## Nothing changes if you do not use it
 

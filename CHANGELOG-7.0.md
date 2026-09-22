@@ -29,6 +29,16 @@
   Nothing changes without opting in: the default bootstrap, `vendor/autoload.php`,
   returns Composer's `ClassLoader`, which is not a container.
 
+- Resolution is strict once a container is offered: a class the container does not
+  hold is refused, not built with `new`. Falling back would be a guess, and a class
+  whose dependencies are all optional would run without the collaborators the
+  container holds -- working, wrong and silent. Without a container nothing changed:
+  `new`, as always.
+
+- When `new` is the path and the constructor takes arguments, the failure is now a
+  `ScriptifyException` naming the class, instead of an `ArgumentCountError` thrown
+  from inside `Runner` with a stack trace pointing at the wrong place.
+
 - `install` no longer instantiates the class it is checking. The check asks whether
   the class and the method exist, which `method_exists()` answers from the class
   name; building the object pulled in its whole dependency graph -- database

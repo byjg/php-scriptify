@@ -74,8 +74,41 @@ class Runner
         // every container entry and fall back to `new` without a word.
         $containerId = ltrim($className, '\\');
 
-        if ($container !== null && $container->has($containerId)) {
+        // Offering a container is a statement: "build my objects this way".
+        // Scriptify takes it literally and does not second-guess a miss with
+        // `new`. Guessing would build the object anyway, with whatever `new`
+        // gives it -- a class with only optional dependencies would run without
+        // the collaborators the container would have injected, and nothing would
+        // say so.
+        if ($container !== null) {
+            if (!$container->has($containerId)) {
+                throw new ScriptifyException(
+                    sprintf(
+                        'Cannot build %s: the container has no entry for "%s". Register it, or '
+                        . 'drop the container from the --bootstrap file to have Scriptify build '
+                        . 'it with new.',
+                        $containerId,
+                        $containerId
+                    )
+                );
+            }
+
             return $container->get($containerId);
+        }
+
+        // No container: `new`, as Scriptify has always done -- and a clear error
+        // when `new` cannot do it, instead of an ArgumentCountError thrown from
+        // inside Scriptify with a stack trace pointing at the wrong place.
+        $constructor = (new ReflectionClass($className))->getConstructor();
+        if ($constructor !== null && $constructor->getNumberOfRequiredParameters() > 0) {
+            throw new ScriptifyException(
+                sprintf(
+                    'Cannot build %s: its constructor requires %d argument(s), and no PSR-11 '
+                    . 'container was offered. Point --bootstrap at a file that returns one.',
+                    $containerId,
+                    $constructor->getNumberOfRequiredParameters()
+                )
+            );
         }
 
         return new $className();

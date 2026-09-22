@@ -154,13 +154,16 @@ class RunnerTest extends TestCase
     }
 
     /**
-     * Same class, no container: the fallback is `new`, so the missing constructor
-     * argument still fails. This is the behaviour container support opts out of --
-     * it is not silently changed for anyone else.
+     * Same class, no container: `new` cannot supply the constructor argument, and
+     * Scriptify says so instead of letting an ArgumentCountError escape from its
+     * own guts. The message has to name the class and point at the way out --
+     * the previous error named a class that may well be registered under an id
+     * nobody looked up, which reads as "the container is being ignored".
      */
-    public function testWithoutContainerTheFallbackIsStillNew(): void
+    public function testConstructorArgumentsWithoutAContainerFailWithAClearMessage(): void
     {
-        $this->expectException(ArgumentCountError::class);
+        $this->expectException(\ByJG\Scriptify\ScriptifyException::class);
+        $this->expectExceptionMessage('no PSR-11 container was offered');
 
         new \ByJG\Scriptify\Runner(
             RunnerContainerFixture::class . '::greet',
@@ -170,16 +173,51 @@ class RunnerTest extends TestCase
     }
 
     /**
-     * A container that does not know the class does not get in the way: a class
-     * with no dependencies keeps being instantiated directly.
+     * Container present but without the entry: the message says *that*, because
+     * the fix is a binding, not a bootstrap.
      */
-    public function testUnknownClassFallsBackToNewEvenWithAContainer(): void
+    public function testMissingContainerEntrySaysWhichIdWasTried(): void
     {
-        $runner = new \ByJG\Scriptify\Runner(
+        $this->expectException(\ByJG\Scriptify\ScriptifyException::class);
+        $this->expectExceptionMessage('the container has no entry for "' . RunnerContainerFixture::class . '"');
+
+        new \ByJG\Scriptify\Runner(
+            '\\' . RunnerContainerFixture::class . '::greet',
+            ['World'],
+            false,
+            $this->container([])
+        );
+    }
+
+    /**
+     * Offering a container makes it the way objects are built, full stop. Even a
+     * class `new` could build is refused when the container does not have it:
+     * silently building it would be a guess, and a class whose dependencies are
+     * all optional would run without the collaborators the container holds --
+     * working, wrong, and quiet about it.
+     */
+    public function testContainerMissIsRefusedEvenWhenNewWouldHaveWorked(): void
+    {
+        $this->expectException(\ByJG\Scriptify\ScriptifyException::class);
+        $this->expectExceptionMessage('the container has no entry for "ByJG\Scriptify\Sample\TryMe"');
+
+        new \ByJG\Scriptify\Runner(
             'ByJG\Scriptify\Sample\TryMe::ping',
             ['first', 'second'],
             false,
             $this->container([])
+        );
+    }
+
+    /**
+     * And without a container nothing changed: the same class is built with new.
+     */
+    public function testWithoutAContainerASimpleClassIsStillBuiltWithNew(): void
+    {
+        $runner = new \ByJG\Scriptify\Runner(
+            'ByJG\Scriptify\Sample\TryMe::ping',
+            ['first', 'second'],
+            false
         );
 
         ob_start();
