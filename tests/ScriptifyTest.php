@@ -57,6 +57,34 @@ class ScriptifyTest extends TestCase
         return $contents;
     }
 
+    /**
+     * The installation check answers "do this class and this method exist?", and
+     * reflection answers it. It must not build the object: a class with
+     * constructor dependencies would drag its whole graph in -- database
+     * connections and all -- to install a service that has not run yet.
+     *
+     * Runner itself is the fixture: it takes a required constructor argument, so
+     * this install fails outright if anything tries to instantiate it.
+     */
+    public function testInstallCheckDoesNotInstantiateTheClass(): void
+    {
+        Scriptify::setWriter($this->serviceWriter);
+
+        $result = Scriptify::install(
+            'test',
+            'ByJG\Scriptify\Runner::execute',
+            'vendor/autoload.php',
+            __DIR__ . '/../',
+            'systemd',
+            'Class with required constructor arguments',
+            [],
+            []
+        );
+
+        $this->assertTrue($result);
+        $this->assertTrue(file_exists('/tmp/test.service'));
+    }
+
     public function testInstallMock(): void
     {
         Scriptify::setWriter($this->serviceWriter);

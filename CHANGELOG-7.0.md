@@ -29,6 +29,11 @@
   Nothing changes without opting in: the default bootstrap, `vendor/autoload.php`,
   returns Composer's `ClassLoader`, which is not a container.
 
+- `install` no longer instantiates the class it is checking. The check asks whether
+  the class and the method exist, which `method_exists()` answers from the class
+  name; building the object pulled in its whole dependency graph -- database
+  connections included -- to install a service that had not run yet.
+
 - `psr/container` is now a declared dependency. It was already in the tree through
   `symfony/service-contracts`, but `Runner` names the interface in its public
   signature now, so relying on a transitive dependency would be luck.

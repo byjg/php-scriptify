@@ -83,8 +83,7 @@ scriptify run \
 
 `--bootstrap` is relative to `--rootdir`, which defaults to the current directory.
 
-The same applies when installing a service, so the daemon resolves its class exactly
-as your test run did:
+The same applies when installing a service:
 
 ```bash
 sudo scriptify install --template=systemd myservice \
@@ -93,8 +92,14 @@ sudo scriptify install --template=systemd myservice \
     --rootdir "/path/to/root"
 ```
 
-The installation check builds the object through the same container, so `install`
-never rejects a class that `run` is able to execute.
+The installed service runs this same command line, so the daemon resolves its class
+exactly as your test run did.
+
+The installation check itself builds nothing. It asks only whether the class and the
+method exist, which reflection answers from the class name — so installing a service
+never opens the database connections, queues or clients your constructor would, for a
+service that has not started yet. It also means `install` never rejects a class over
+how it would be built; that is decided when it runs.
 
 ## What happens, exactly
 

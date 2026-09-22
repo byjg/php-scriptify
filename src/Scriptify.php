@@ -3,7 +3,6 @@
 namespace ByJG\Scriptify;
 
 use ByJG\JinjaPhp\Template;
-use Psr\Container\ContainerInterface;
 
 class Scriptify
 {
@@ -126,19 +125,19 @@ class Scriptify
 
         // Check if is OK
         if ($check) {
-            // Same container protocol as `run`: if the check built the object
-            // differently, install would reject a class that `run` can execute.
-            $loaded = require_once($vars['bootstrap']);
-            $container = $loaded instanceof ContainerInterface ? $loaded : null;
+            // Reflection only: the question here is whether the class and the
+            // method exist, and method_exists() answers it from the class name.
+            // Building the object would drag in its whole dependency graph --
+            // opening database connections and the like -- to install a service
+            // that has not run yet.
+            require_once($vars['bootstrap']);
 
             $classString = (string)$vars['class'];
             $classParts = explode('::', str_replace("\\\\", "\\", $classString));
             if (!class_exists($classParts[0])) {
                 throw new \Exception('Could not find class ' . $classParts[0]);
             }
-            $className = $classParts[0];
-            $classTest = Runner::resolve($className, $container);
-            if (!isset($classParts[1]) || !method_exists($classTest, $classParts[1])) {
+            if (!isset($classParts[1]) || !method_exists($classParts[0], $classParts[1])) {
                 throw new \Exception('Could not find method ' . $classString);
             }
         }
