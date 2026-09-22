@@ -210,6 +210,48 @@ class RunnerTest extends TestCase
     }
 
     /**
+     * The slash form spells the same class without an escape character in sight,
+     * which is the point: a backslash has to be quoted in a shell and doubled
+     * again inside a composer script or a JSON manifest.
+     */
+    public function testSlashFormNamesTheSameClass(): void
+    {
+        $runner = new \ByJG\Scriptify\Runner(
+            'ByJG/Scriptify/Sample/TryMe::ping',
+            ['first', 'second'],
+            false
+        );
+
+        ob_start();
+        $runner->execute();
+        $this->assertSame("pong - first - second\n", ob_get_clean());
+    }
+
+    /**
+     * And it reaches the container under the same id as the backslash form.
+     */
+    public function testSlashFormResolvesThroughTheContainer(): void
+    {
+        // Registered under the backslash id, asked for with slashes. And because
+        // resolution is strict, a container that missed would throw -- so this
+        // passing means the entry really was found, not that `new` covered up.
+        $container = $this->container([
+            'ByJG\\Scriptify\\Sample\\TryMe' => new \ByJG\Scriptify\Sample\TryMe(),
+        ]);
+
+        $runner = new \ByJG\Scriptify\Runner(
+            'ByJG/Scriptify/Sample/TryMe::ping',
+            ['first', 'second'],
+            false,
+            $container
+        );
+
+        ob_start();
+        $runner->execute();
+        $this->assertSame("pong - first - second\n", ob_get_clean());
+    }
+
+    /**
      * And without a container nothing changed: the same class is built with new.
      */
     public function testWithoutAContainerASimpleClassIsStillBuiltWithNew(): void

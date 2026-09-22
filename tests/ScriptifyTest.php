@@ -85,6 +85,32 @@ class ScriptifyTest extends TestCase
         $this->assertTrue(file_exists('/tmp/test.service'));
     }
 
+    /**
+     * A service installed with the slash form must end up byte-identical to one
+     * installed with backslashes: the normalisation happens before the template
+     * is rendered, so what lands in /etc is always the canonical spelling.
+     */
+    public function testSlashFormInstallsTheCanonicalClassName(): void
+    {
+        Scriptify::setWriter($this->serviceWriter);
+
+        Scriptify::install(
+            'test',
+            'ByJG/Scriptify/Sample/TryMe::ping',
+            'vendor/autoload.php',
+            __DIR__ . '/../',
+            'systemd',
+            'Custom Description',
+            [],
+            []
+        );
+
+        $this->assertEquals(
+            file_get_contents(__DIR__ . '/expected/test.service'),
+            $this->read('/tmp/test.service')
+        );
+    }
+
     public function testInstallMock(): void
     {
         Scriptify::setWriter($this->serviceWriter);

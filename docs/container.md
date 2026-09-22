@@ -99,6 +99,10 @@ scriptify run \
 
 `--bootstrap` is relative to `--rootdir`, which defaults to the current directory.
 
+The class can also be named with forward slashes — `Some/Name/Space/MyExistingClass`
+— which needs no shell escaping and reaches the container under the same id. See
+[Call a PHP method from the command line](script.md).
+
 The same applies when installing a service:
 
 ```bash

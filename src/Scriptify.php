@@ -83,7 +83,10 @@ class Scriptify
 
         $scriptifyService = realpath(__DIR__ . "/../scripts/scriptify");
 
-        $classNameStr = is_string($className) ? $className : (string)$className;
+        // Normalise before the template is built, so the installed service file
+        // always carries the canonical backslash form -- whichever spelling the
+        // person typed on the command line.
+        $classNameStr = Runner::normalize(is_string($className) ? $className : (string)$className);
         $vars = [
             'description' => $description,
             'daemonbootstrap' => $autoload,

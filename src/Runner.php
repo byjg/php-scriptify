@@ -34,7 +34,7 @@ class Runner
     ) {
         $this->daemon = $daemon;
 
-        $arr = explode("::", $object);
+        $arr = explode("::", self::normalize($object));
         $className = $this->className = $arr[0];
         $this->methodName = $arr[1];
 
@@ -43,6 +43,21 @@ class Runner
 
         // Instantiate the class
         $this->instance = self::resolve($className, $container);
+    }
+
+    /**
+     * Accept "Name/Space/Class::method" as well as "Name\Space\Class::method".
+     *
+     * A backslash is the shell's escape character, so the documented form has to
+     * be quoted -- and doubled again once it passes through another layer. A
+     * class named inside a composer script or a JSON manifest can end up with
+     * four backslashes per separator, which is a fine place for a typo to hide.
+     * A forward slash needs no escaping anywhere, and cannot be mistaken for
+     * anything else: it is not valid in a PHP identifier or namespace.
+     */
+    public static function normalize(string $object): string
+    {
+        return str_replace('/', '\\', $object);
     }
 
     /**
@@ -145,7 +160,10 @@ class Runner
 
         // get the current script name
         $docs .= "\nUsage: \n";
-        $docs .= ($_SERVER['argv'][0] ?? 'scriptify') . " run \"" . str_replace('\\', '\\\\', $this->className . "::" . $this->methodName) . "\" ";
+        // Prints the slash form: it needs no quoting, so the line can be pasted
+        // as-is into a shell, a composer script or a service definition.
+        $docs .= ($_SERVER['argv'][0] ?? 'scriptify') . " run "
+            . str_replace('\\', '/', ltrim((string) $this->className, '\\') . "::" . $this->methodName) . " ";
 
         foreach ($method->getParameters() as $param) {
             $delimiter = $param->isOptional() ? "[]" : "<>";

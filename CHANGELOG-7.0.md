@@ -44,6 +44,16 @@
   name; building the object pulled in its whole dependency graph -- database
   connections included -- to install a service that had not run yet.
 
+- A class can be named with forward slashes -- `Some/Name/Space/MyClass::method` --
+  as well as with backslashes. A backslash is the shell's escape character, so the
+  documented form has to be quoted, and doubled again whenever the command passes
+  through another layer: inside a `composer.json` script a single separator becomes
+  four characters, which is a fine place for a typo to hide. A forward slash is not
+  valid in a PHP identifier, so the conversion cannot destroy a legitimate name.
+
+  `--showdocs` now prints the slash form, so the usage line it emits can be pasted
+  anywhere without adjusting the quoting.
+
 - `psr/container` is now a declared dependency. It was already in the tree through
   `symfony/service-contracts`, but `Runner` names the interface in its public
   signature now, so relying on a transitive dependency would be luck.
