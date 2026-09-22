@@ -57,6 +57,60 @@ class ScriptifyTest extends TestCase
         return $contents;
     }
 
+    /**
+     * The installation check answers "do this class and this method exist?", and
+     * reflection answers it. It must not build the object: a class with
+     * constructor dependencies would drag its whole graph in -- database
+     * connections and all -- to install a service that has not run yet.
+     *
+     * Runner itself is the fixture: it takes a required constructor argument, so
+     * this install fails outright if anything tries to instantiate it.
+     */
+    public function testInstallCheckDoesNotInstantiateTheClass(): void
+    {
+        Scriptify::setWriter($this->serviceWriter);
+
+        $result = Scriptify::install(
+            'test',
+            'ByJG\Scriptify\Runner::execute',
+            'vendor/autoload.php',
+            __DIR__ . '/../',
+            'systemd',
+            'Class with required constructor arguments',
+            [],
+            []
+        );
+
+        $this->assertTrue($result);
+        $this->assertTrue(file_exists('/tmp/test.service'));
+    }
+
+    /**
+     * A service installed with the slash form must end up byte-identical to one
+     * installed with backslashes: the normalisation happens before the template
+     * is rendered, so what lands in /etc is always the canonical spelling.
+     */
+    public function testSlashFormInstallsTheCanonicalClassName(): void
+    {
+        Scriptify::setWriter($this->serviceWriter);
+
+        Scriptify::install(
+            'test',
+            'ByJG/Scriptify/Sample/TryMe::ping',
+            'vendor/autoload.php',
+            __DIR__ . '/../',
+            'systemd',
+            'Custom Description',
+            [],
+            []
+        );
+
+        $this->assertEquals(
+            file_get_contents(__DIR__ . '/expected/test.service'),
+            $this->read('/tmp/test.service')
+        );
+    }
+
     public function testInstallMock(): void
     {
         Scriptify::setWriter($this->serviceWriter);

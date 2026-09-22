@@ -83,7 +83,10 @@ class Scriptify
 
         $scriptifyService = realpath(__DIR__ . "/../scripts/scriptify");
 
-        $classNameStr = is_string($className) ? $className : (string)$className;
+        // Normalise before the template is built, so the installed service file
+        // always carries the canonical backslash form -- whichever spelling the
+        // person typed on the command line.
+        $classNameStr = Runner::normalize(is_string($className) ? $className : (string)$className);
         $vars = [
             'description' => $description,
             'daemonbootstrap' => $autoload,
@@ -125,15 +128,19 @@ class Scriptify
 
         // Check if is OK
         if ($check) {
+            // Reflection only: the question here is whether the class and the
+            // method exist, and method_exists() answers it from the class name.
+            // Building the object would drag in its whole dependency graph --
+            // opening database connections and the like -- to install a service
+            // that has not run yet.
             require_once($vars['bootstrap']);
+
             $classString = (string)$vars['class'];
             $classParts = explode('::', str_replace("\\\\", "\\", $classString));
             if (!class_exists($classParts[0])) {
                 throw new \Exception('Could not find class ' . $classParts[0]);
             }
-            $className = $classParts[0];
-            $classTest = new $className();
-            if (!isset($classParts[1]) || !method_exists($classTest, $classParts[1])) {
+            if (!isset($classParts[1]) || !method_exists($classParts[0], $classParts[1])) {
                 throw new \Exception('Could not find method ' . $classString);
             }
         }

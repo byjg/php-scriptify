@@ -10,22 +10,25 @@
     "scripts/scriptify"
   ],
   "require": {
-    "symfony/console": "^5.4|^6.2|^7.0",
-    "byjg/jinja-php": "^6.0",
-    "php": ">=8.3 <8.6",
+    "symfony/console": "^7.4 || ^8.0",
+    "psr/container": "^1.1 || ^2.0",
+    "byjg/jinja-php": "^7.0",
+    "php": ">=8.3 <8.7",
     "ext-readline": "*"
   },
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require-dev": {
     "ext-posix": "*",
-    "byjg/restserver": "^6.0",
-    "phpunit/phpunit": "^10.5|^11.5",
-    "vimeo/psalm": "^5.9|^6.13"
+    "byjg/restserver": "^7.0",
+    "phpunit/phpunit": "^12.5"
   },
   "scripts": {
     "test": "vendor/bin/phpunit",
-    "psalm": "vendor/bin/psalm"
+    "psalm": [
+      "@composer --working-dir=tools/psalm update --no-interaction",
+      "tools/psalm/vendor/bin/psalm"
+    ]
   },
   "license": "MIT"
 }

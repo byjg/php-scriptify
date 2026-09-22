@@ -30,11 +30,14 @@ use ByJG\Scriptify\Console\TerminalCommand;
 use ByJG\Scriptify\Console\UninstallCommand;
 use Symfony\Component\Console\Application;
 
-$application = new Application('Scriptify ByJG', '6.0');
-$application->add(new InstallCommand());
-$application->add(new UninstallCommand());
-$application->add(new RunCommand());
-$application->add(new CallCommand());
-$application->add(new ServicesCommand());
-$application->add(new TerminalCommand());
+$application = new Application('Scriptify ByJG', '7.0');
+
+// addCommand() instead of add(): add() was removed in symfony/console 8.0.
+// addCommand() exists from 7.4 on, which is why the console floor is ^7.4.
+$application->addCommand(new InstallCommand());
+$application->addCommand(new UninstallCommand());
+$application->addCommand(new RunCommand());
+$application->addCommand(new CallCommand());
+$application->addCommand(new ServicesCommand());
+$application->addCommand(new TerminalCommand());
 $application->run();
