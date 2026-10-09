@@ -1,5 +1,7 @@
 <?php
 
+namespace Tests;
+
 use \PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 
@@ -63,7 +65,7 @@ class RunnerTest extends TestCase
 
     public function testExecuteArgsWithoutRequired(): void
     {
-        $this->expectException(ArgumentCountError::class);
+        $this->expectException(\ArgumentCountError::class);
         $runner = new \ByJG\Scriptify\Runner(
             'ByJG\Scriptify\Sample\TryMe::ping',
             [],

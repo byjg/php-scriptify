@@ -1,5 +1,7 @@
 <?php
 
+namespace Tests;
+
 use ByJG\Scriptify\Scriptify;
 use \PHPUnit\Framework\TestCase;
 
