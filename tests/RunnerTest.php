@@ -20,6 +20,31 @@ class RunnerContainerFixture
     }
 }
 
+/**
+ * Docblock shapes showDocs() has to render.
+ */
+class RunnerDocsFixture
+{
+    /** Single line docblock. */
+    public function oneLine(int $days): void
+    {
+    }
+
+    /**
+     * Delete records older than the given number of days.
+     *
+     * @param int $days
+     * @param string|null $table
+     */
+    public function cleanOldRecords(int $days, ?string $table = null): void
+    {
+    }
+
+    public function undocumented(string $name): void
+    {
+    }
+}
+
 class RunnerTest extends TestCase
 {
     /** @param array<string, mixed> $entries */
@@ -267,5 +292,51 @@ class RunnerTest extends TestCase
         ob_start();
         $runner->execute();
         $this->assertSame("pong - first - second\n", ob_get_clean());
+    }
+
+    public function testShowDocsDefaultUsage(): void
+    {
+        $argv = $_SERVER['argv'];
+        $_SERVER['argv'] = ['scriptify'];
+        try {
+            $this->expectOutputString(
+                "This will return a pong message with the arguments passed and write to the file /tmp/tryme_test.txt\n"
+                . "@param string \$arg1\n"
+                . "@param string|null \$arg2\n"
+                . "\nUsage: \n"
+                . "scriptify run ByJG/Scriptify/Sample/TryMe::ping --arg <arg1> --arg [arg2] "
+            );
+            (new \ByJG\Scriptify\Runner('\\ByJG\\Scriptify\\Sample\\TryMe::ping', [], false))->showDocs();
+        } finally {
+            $_SERVER['argv'] = $argv;
+        }
+    }
+
+    public function testShowDocsWithUsagePrefix(): void
+    {
+        $this->expectOutputString(
+            "Delete records older than the given number of days.\n"
+            . "\n"
+            . "@param int \$days\n"
+            . "@param string|null \$table\n"
+            . "\nUsage: \n"
+            . "./gluo user:cleanup <days> [table] "
+        );
+        (new \ByJG\Scriptify\Runner(RunnerDocsFixture::class . '::cleanOldRecords', [], false))
+            ->showDocs('./gluo user:cleanup');
+    }
+
+    public function testShowDocsSingleLineDocblockLeavesNoMarkers(): void
+    {
+        $this->expectOutputString("Single line docblock.\n\nUsage: \n./gluo one:line <days> ");
+        (new \ByJG\Scriptify\Runner(RunnerDocsFixture::class . '::oneLine', [], false))
+            ->showDocs('./gluo one:line');
+    }
+
+    public function testShowDocsWithoutDocblock(): void
+    {
+        $this->expectOutputString("\nUsage: \n./gluo no:docs <name> ");
+        (new \ByJG\Scriptify\Runner(RunnerDocsFixture::class . '::undocumented', [], false))
+            ->showDocs('./gluo no:docs');
     }
 }

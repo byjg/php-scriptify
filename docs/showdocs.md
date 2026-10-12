@@ -35,3 +35,27 @@ The `--showdocs` option reads the PHPDoc comments from your method and displays:
 - Method description
 - Parameter information (types, names, whether they're optional)
 - Usage examples with the correct syntax
+
+## Custom usage line
+
+`Runner::showDocs()` accepts an optional usage prefix, for a launcher that wraps
+Scriptify behind its own command names:
+
+```php
+$runner = new \ByJG\Scriptify\Runner('Some/Name/Space/Maintenance::cleanOldRecords', [], false, $container);
+$runner->showDocs('./app user:cleanup');
+```
+
+The usage line is then the prefix followed by the parameters as positional values,
+without `--arg`:
+
+```plaintext
+Delete records older than the given number of days.
+@param int $days
+@param string|null $table
+
+Usage:
+./app user:cleanup <days> [table]
+```
+
+Without the argument the output is unchanged.

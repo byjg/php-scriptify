@@ -17,6 +17,12 @@
 
 ## New
 
+- `Runner::showDocs()` accepts an optional `$usagePrefix`. When given, the usage line is
+  that prefix followed by the parameters as positional values, without `--arg`
+  (`./app user:cleanup <days> [table]`), so a launcher that maps its own command names
+  to Scriptify targets can print help in its own syntax. Without it the output is
+  unchanged. See [docs/showdocs.md](docs/showdocs.md).
+
 - Classes can now be resolved through a [PSR-11](https://www.php-fig.org/psr/psr-11/)
   container, so a class with constructor dependencies can be scriptified without
   being changed.
@@ -57,6 +63,12 @@
 - `psr/container` is now a declared dependency. It was already in the tree through
   `symfony/service-contracts`, but `Runner` names the interface in its public
   signature now, so relying on a transitive dependency would be luck.
+
+## Fixed
+
+- `--showdocs` no longer leaves a stray `/` in front of the text of a single-line
+  docblock (`/** Like this. */`). The opening and closing markers are now removed
+  completely before the leading `*` of each line.
 
 ## Requirements
 

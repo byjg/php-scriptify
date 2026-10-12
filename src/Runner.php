@@ -148,28 +148,55 @@ class Runner
     }
 
     /**
+     * Print the PHPDoc of the method followed by a usage line.
+     *
+     * By default the usage line is the Scriptify one:
+     * `<script> run Name/Space/Class::method --arg <a> --arg [b]`.
+     *
+     * A launcher that wraps Scriptify behind its own command names passes
+     * $usagePrefix (e.g. "./app user:cleanup"); the usage line is then that
+     * prefix followed by the parameters as plain positional values, without
+     * `--arg`: `./app user:cleanup <days> [table]`.
+     *
      * @throws ReflectionException
      */
-    public function showDocs(): void
+    public function showDocs(?string $usagePrefix = null): void
     {
         $reflection = new ReflectionClass($this->instance);
         $method = $reflection->getMethod($this->methodName ?? '');
-        $docs = $method->getDocComment();
 
-        $docs = preg_replace('/( *\/\*\*[\r\n]| *\*\/? *)/', '', $docs);
+        $docs = self::stripDocComment((string) $method->getDocComment());
 
-        // get the current script name
         $docs .= "\nUsage: \n";
-        // Prints the slash form: it needs no quoting, so the line can be pasted
-        // as-is into a shell, a composer script or a service definition.
-        $docs .= ($_SERVER['argv'][0] ?? 'scriptify') . " run "
-            . str_replace('\\', '/', ltrim((string) $this->className, '\\') . "::" . $this->methodName) . " ";
+        if ($usagePrefix === null) {
+            // Prints the slash form: it needs no quoting, so the line can be pasted
+            // as-is into a shell, a composer script or a service definition.
+            $docs .= ($_SERVER['argv'][0] ?? 'scriptify') . " run "
+                . str_replace('\\', '/', ltrim((string) $this->className, '\\') . "::" . $this->methodName) . " ";
+            $argPrefix = "--arg ";
+        } else {
+            $docs .= $usagePrefix . " ";
+            $argPrefix = "";
+        }
 
         foreach ($method->getParameters() as $param) {
             $delimiter = $param->isOptional() ? "[]" : "<>";
-            $docs .= "--arg " . $delimiter[0] . $param->name .  $delimiter[1] . " ";
+            $docs .= $argPrefix . $delimiter[0] . $param->name .  $delimiter[1] . " ";
         }
 
         echo $docs;
+    }
+
+    /**
+     * Reduce a docblock to its text: drop the opening and closing markers
+     * completely, then the leading asterisk of each line.
+     */
+    protected static function stripDocComment(string $docComment): string
+    {
+        $docs = (string) preg_replace('~^\s*/\*+|\*+/\s*$~', '', $docComment);
+        $docs = (string) preg_replace('~^[ \t]*\*[ \t]?~m', '', $docs);
+        $docs = trim($docs);
+
+        return $docs === '' ? '' : $docs . "\n";
     }
 }
