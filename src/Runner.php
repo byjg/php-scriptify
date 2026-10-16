@@ -65,14 +65,17 @@ class Runner
      *
      * Without a container this is `new $className()`, which is what Scriptify has
      * always done: a class with no constructor dependencies needs no container at
-     * all. When a PSR-11 container is given and knows the class, the container
-     * wins -- that is what allows a class with constructor dependencies to be
-     * scriptified without changing it.
+     * all. When a PSR-11 container is given, it builds the class -- that is what
+     * allows a class with constructor dependencies to be scriptified without
+     * changing it.
      *
-     * A class the container does not know falls back to `new`. Errors thrown by
-     * the container are NOT caught: an entry that exists but is misconfigured is a
-     * configuration problem, and hiding it behind `new` would surface much later,
-     * as a confusing error somewhere else.
+     * A class the given container does not know is a ScriptifyException; it is never
+     * built with `new` instead. Errors thrown by the container are NOT caught: an
+     * entry that exists but is misconfigured is a configuration problem, and hiding
+     * it would surface much later, as a confusing error somewhere else.
+     *
+     * The bundled `scriptify` CLI gets one from a --bootstrap file that returns it; a
+     * host application passes its own (Launcher, or Runner directly).
      *
      * @throws Exception
      */
@@ -99,9 +102,8 @@ class Runner
             if (!$container->has($containerId)) {
                 throw new ScriptifyException(
                     sprintf(
-                        'Cannot build %s: the container has no entry for "%s". Register it, or '
-                        . 'drop the container from the --bootstrap file to have Scriptify build '
-                        . 'it with new.',
+                        'Cannot build %s: the container has no entry for "%s". Register it in '
+                        . 'the container.',
                         $containerId,
                         $containerId
                     )
@@ -119,7 +121,8 @@ class Runner
             throw new ScriptifyException(
                 sprintf(
                     'Cannot build %s: its constructor requires %d argument(s), and no PSR-11 '
-                    . 'container was offered. Point --bootstrap at a file that returns one.',
+                    . 'container was offered. Point --bootstrap at a file that returns one, or pass it '
+                    . 'to Launcher or Runner.',
                     $containerId,
                     $constructor->getNumberOfRequiredParameters()
                 )

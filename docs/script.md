@@ -75,12 +75,14 @@ literal, so one per separator is enough.
 scriptify run '\Some\Name\Space\MyExistingClass::someExistingMethod'
 ```
 
-If is necessary to execute this method in a specific environment you can use the `--bootstrap` and `--rootdir` parameters:
+`--rootdir` is the directory to run in, and `--bootstrap` a file relative to it: the
+autoload file (`vendor/autoload.php` by default), or a file that returns your PSR-11
+container, to have the class built by it (see [container](container.md)).
 
 ```bash
 scriptify run \
     "\\Some\\Name\\Space\\MyExistingClass::someExistingMethod" \
-    --bootstrap "relative/path/to/bootstrap.php" \
+    --bootstrap "vendor/autoload.php" \
     --rootdir "/path/to/root" \
     --arg value1 \
     --arg value2

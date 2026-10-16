@@ -23,23 +23,35 @@
   to Scriptify targets can print help in its own syntax. Without it the output is
   unchanged. See [docs/showdocs.md](docs/showdocs.md).
 
-- Classes can now be resolved through a [PSR-11](https://www.php-fig.org/psr/psr-11/)
-  container, so a class with constructor dependencies can be scriptified without
-  being changed.
+- `Launcher` and `CommandProvider`: a command line for an application's own commands
+  (`./app payment:sweep 42`). A `CommandProvider` class names them with class references,
+  a class standing for all its public methods (`payment:charge`, `payment:refund`, ...).
+  `Launcher` runs them, lists them with their PHPDoc summary (`list`), checks each one
+  without running it (`list --check`), prints `<command> --help`, and runs a command
+  again and again with `--daemon`. A host with built-in commands extends it, and protects
+  their names with `isReserved()`. See [docs/launcher.md](docs/launcher.md).
 
-  The protocol is the `--bootstrap` file: if it *returns* a `ContainerInterface`,
-  Scriptify asks it for the class and falls back to `new` for anything the container
-  does not know. `run` and the `install` check resolve identically, so `install`
-  never rejects a class `run` can execute. See [docs/container.md](docs/container.md).
+- Classes can be resolved through a [PSR-11](https://www.php-fig.org/psr/psr-11/)
+  container, so a class with constructor dependencies can be run without being changed.
+  The container is optional. `scriptify run` and `install` take it from the `--bootstrap`
+  file: if the file *returns* a `ContainerInterface`, Scriptify asks it for the class.
+  An application passes its own to `Launcher` (or `Runner`). See
+  [docs/container.md](docs/container.md).
 
   Nothing changes without opting in: the default bootstrap, `vendor/autoload.php`,
   returns Composer's `ClassLoader`, which is not a container.
 
-- Resolution is strict once a container is offered: a class the container does not
+- Resolution is strict once a container is given: a class the container does not
   hold is refused, not built with `new`. Falling back would be a guess, and a class
   whose dependencies are all optional would run without the collaborators the
   container holds -- working, wrong and silent. Without a container nothing changed:
   `new`, as always.
+
+- `Scriptify::installCommand()` installs a service for a command line, as given, in a
+  working directory: what `install` now uses for `scriptify run`, and what an application
+  uses to install one of its own commands. The service templates take the full command,
+  and set the working directory (systemd `WorkingDirectory`, upstart `chdir`, initd
+  `--chdir`, crond `cd`).
 
 - When `new` is the path and the constructor takes arguments, the failure is now a
   `ScriptifyException` naming the class, instead of an `ArgumentCountError` thrown
@@ -65,6 +77,17 @@
   signature now, so relying on a transitive dependency would be luck.
 
 ## Fixed
+
+- A service installed with arguments did not start: the command line used `--args`,
+  which `run` does not know (`The "--args" option does not exist`). It is `--arg` now,
+  each value shell-quoted.
+
+- An initd service did not start: its command line added `--daemonize`, `--pidfile` and
+  `--log`, which `run` does not have. `start-stop-daemon` already runs it in the
+  background with a pid file, so they are gone.
+
+- `ServiceWriter` with an override path (used by the tests) wrote the file there but
+  applied the initd `chmod` to the original `/etc/init.d` path.
 
 - `--showdocs` no longer leaves a stray `/` in front of the text of a single-line
   docblock (`/** Like this. */`). The opening and closing markers are now removed

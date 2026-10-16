@@ -28,6 +28,7 @@ Scriptify allows you to:
 
 - [Call a PHP method from the command line](docs/script.md)
 - [Resolve classes through a PSR-11 container](docs/container.md)
+- [Give your application a command line: Launcher](docs/launcher.md)
 - [Install a PHP class/method as a service](docs/install.md)
 - [Call a REST endpoint from the command line](docs/endpoint.md)
 - [Interactive PHP terminal](docs/terminal.md)

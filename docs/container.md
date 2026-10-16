@@ -70,8 +70,7 @@ literally. It asks `has($className)`, and a class the container does not hold is
 
 ```plaintext
 Cannot build Some\Name\Space\MyExistingClass: the container has no entry for
-"Some\Name\Space\MyExistingClass". Register it, or drop the container from the
---bootstrap file to have Scriptify build it with new.
+"Some\Name\Space\MyExistingClass". Register it in the container.
 ```
 
 That is deliberate, and it holds even for a class `new` could have built. Guessing
@@ -133,6 +132,9 @@ how it would be built; that is decided when it runs.
 
 In short: no container means `new`, exactly as before; a container means the
 container, with no second guess.
+
+An application with its own command line passes its container to
+[Launcher](launcher.md) instead, with the same rules.
 
 The class name is normalised before the lookup: Scriptify's own convention writes it
 with a leading backslash (`"\\Some\\Class::method"`), and a PSR-11 id does not
