@@ -28,6 +28,14 @@ scriptify install --template=systemd mydaemon \
     --arg "value2"
 ```
 
+The service runs the whole command, written out with every option resolved: the PHP
+binary, `scriptify run`, the class, `--bootstrap` (`vendor/autoload.php` when not given; a
+bootstrap that returns a container works as in `run`), the absolute `--rootdir` and the arguments. Nothing depends on a default
+at run time. The service also runs in the root directory.
+
+To install a command of your own application (`./app payment:sweep`), see
+[Launcher](launcher.md#install-a-command-as-a-service).
+
 *note*: valid templates are:
 
 - systemd (default)

@@ -207,4 +207,54 @@ class ScriptifyTest extends TestCase
         $this->assertEquals([], $services);
     }
 
+    /**
+     * installCommand() writes the command line as given, in the working directory, with
+     * --daemon where the service keeps it running: what an application with its own
+     * command line (./app payment:sweep) installs.
+     *
+     * @return array<string, array{0: string, 1: string, 2: string[]}>
+     */
+    public static function commandTemplates(): array
+    {
+        $command = '/usr/bin/php /srv/app/app --env=prod payment:sweep \'30\'';
+        return [
+            'systemd' => ['systemd', '/tmp/svc-test.service', ['WorkingDirectory=/srv/app', "ExecStart=$command --daemon"]],
+            'crond' => ['crond', '/tmp/svc-test', ['root     cd "/srv/app" && APP_ENV="prod" ' . $command . ' ']],
+            'upstart' => ['upstart', '/tmp/svc-test.conf', ['chdir /srv/app', "    $command --daemon"]],
+            'initd' => ['initd', '/tmp/svc-test', ['--chdir "/srv/app" --exec -- ' . "$command --daemon\n"]],
+        ];
+    }
+
+    /**
+     * @param string[] $lines
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('commandTemplates')]
+    public function testInstallCommandWritesTheCommandAsGiven(string $template, string $file, array $lines): void
+    {
+        Scriptify::setWriter($this->serviceWriter);
+        try {
+            Scriptify::installCommand(
+                'svc-test',
+                '/usr/bin/php /srv/app/app --env=prod payment:sweep \'30\'',
+                '/srv/app',
+                $template,
+                'Sweep the payments',
+                ['APP_ENV' => 'prod']
+            );
+
+            $contents = (string)file_get_contents($file);
+            foreach ($lines as $line) {
+                $this->assertStringContainsString($line, $contents);
+            }
+            $this->assertStringContainsString('PHP_SCRIPTIFY', $contents);
+            $this->assertStringNotContainsString('{{', $contents);
+            $this->assertSame('export APP_ENV=prod', file_get_contents('/tmp/svc-test.env'));
+        } finally {
+            foreach ([$file, '/tmp/svc-test.env'] as $written) {
+                if (file_exists($written)) {
+                    unlink($written);
+                }
+            }
+        }
+    }
 }

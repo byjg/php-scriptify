@@ -14,10 +14,10 @@ class ServiceWriter
     /**
      * @param string $path
      * @param string $contents
-     * @return void
+     * @return string The path written: $path, or its name under the override path.
      * @throws ScriptifyException
      */
-    protected function writeFile(string $path, string $contents): void
+    protected function writeFile(string $path, string $contents): string
     {
         if (!is_null($this->overridePath)) {
             $path = $this->overridePath . '/' . basename($path);
@@ -33,6 +33,8 @@ class ServiceWriter
         }
         file_put_contents($path, $contents);
         restore_error_handler();
+
+        return $path;
     }
 
     /**
@@ -43,10 +45,10 @@ class ServiceWriter
      */
     public function writeService(string $path, string $contents, ?int $chmod = null): void
     {
-        $this->writeFile($path, $contents);
+        $written = $this->writeFile($path, $contents);
 
         if (!is_null($chmod)) {
-            chmod($path, $chmod);
+            chmod($written, $chmod);
         }
     }
 
