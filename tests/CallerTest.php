@@ -1,5 +1,7 @@
 <?php
 
+namespace Tests;
+
 use PHPUnit\Framework\TestCase;
 
 class CallerTest extends TestCase

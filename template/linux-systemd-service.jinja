@@ -4,8 +4,9 @@ Description={{ description }}
 
 [Service]
 Type=simple
+WorkingDirectory={{ rootpath }}
 EnvironmentFile={{ environment }}
-ExecStart={{ phppath }} {{ scriptifyservice }} run "{{ class }}" --bootstrap "{{ bootstrap }}" --rootdir "{{ rootpath }}" {{ consoleargs }} --daemon
+ExecStart={{ command }} --daemon
 Nice=5
 
 [Install]

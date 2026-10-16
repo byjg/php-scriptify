@@ -4,8 +4,9 @@ Description=Custom Description
 
 [Service]
 Type=simple
+WorkingDirectory=CURDIR
 EnvironmentFile=/etc/scriptify/test.env
-ExecStart=PHP_BINARY CURDIR/scripts/scriptify run "ByJG\\Scriptify\\Sample\\TryMe::ping" --bootstrap "vendor/autoload.php" --rootdir "CURDIR"  --daemon
+ExecStart=PHP_BINARY CURDIR/scripts/scriptify run "ByJG\\Scriptify\\Sample\\TryMe::ping" --bootstrap "vendor/autoload.php" --rootdir "CURDIR" --daemon
 Nice=5
 
 [Install]

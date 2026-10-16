@@ -2,7 +2,7 @@
 #
 #	/etc/init.d/{{ svcname }}
 #
-# Starts the php daemon for PHP class {{ class }}
+# {{ description }}
 # PHP_SCRIPTIFY
 #
 # chkconfig: 345 95 5
@@ -22,7 +22,7 @@ PIDFILE=/var/run/$NAME.pid
 start() {
     echo -n $"Starting $NAME: "
     source {{ environment }}
-    start-stop-daemon --start --quiet --background --make-pidfile --pidfile $PIDFILE --exec -- {{ phppath }} {{ scriptifyservice }} run "{{ class }}" --bootstrap "{{ bootstrap }}" --rootdir "{{ rootpath }}" {{ consoleargs }} --daemonize --pidfile $PIDFILE --log $log --daemon
+    start-stop-daemon --start --quiet --background --make-pidfile --pidfile $PIDFILE --chdir "{{ rootpath }}" --exec -- {{ command }} --daemon
     case "$?" in
         0) echo "OK!" ;;
         1) echo "already started" ;;

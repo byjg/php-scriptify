@@ -3,6 +3,7 @@
 namespace ByJG\Scriptify;
 
 use Exception;
+use Psr\Container\ContainerInterface;
 use ReflectionClass;
 use ReflectionException;
 
@@ -25,11 +26,15 @@ class Runner
 
     protected array $consoleArgs = [];
 
-    public function __construct(string $object, array $consoleArgs = [], bool $daemon = true)
-    {
+    public function __construct(
+        string $object,
+        array $consoleArgs = [],
+        bool $daemon = true,
+        ?ContainerInterface $container = null
+    ) {
         $this->daemon = $daemon;
 
-        $arr = explode("::", $object);
+        $arr = explode("::", self::normalize($object));
         $className = $this->className = $arr[0];
         $this->methodName = $arr[1];
 
@@ -37,10 +42,94 @@ class Runner
         $this->consoleArgs = $consoleArgs;
 
         // Instantiate the class
+        $this->instance = self::resolve($className, $container);
+    }
+
+    /**
+     * Accept "Name/Space/Class::method" as well as "Name\Space\Class::method".
+     *
+     * A backslash is the shell's escape character, so the documented form has to
+     * be quoted -- and doubled again once it passes through another layer. A
+     * class named inside a composer script or a JSON manifest can end up with
+     * four backslashes per separator, which is a fine place for a typo to hide.
+     * A forward slash needs no escaping anywhere, and cannot be mistaken for
+     * anything else: it is not valid in a PHP identifier or namespace.
+     */
+    public static function normalize(string $object): string
+    {
+        return str_replace('/', '\\', $object);
+    }
+
+    /**
+     * Build the object whose method will be called.
+     *
+     * Without a container this is `new $className()`, which is what Scriptify has
+     * always done: a class with no constructor dependencies needs no container at
+     * all. When a PSR-11 container is given, it builds the class -- that is what
+     * allows a class with constructor dependencies to be scriptified without
+     * changing it.
+     *
+     * A class the given container does not know is a ScriptifyException; it is never
+     * built with `new` instead. Errors thrown by the container are NOT caught: an
+     * entry that exists but is misconfigured is a configuration problem, and hiding
+     * it would surface much later, as a confusing error somewhere else.
+     *
+     * The bundled `scriptify` CLI gets one from a --bootstrap file that returns it; a
+     * host application passes its own (Launcher, or Runner directly).
+     *
+     * @throws Exception
+     */
+    public static function resolve(string $className, ?ContainerInterface $container = null): mixed
+    {
         if (!class_exists($className)) {
             throw new \Exception("Could not found the class $className");
         }
-        $this->instance = new $className();
+
+        // Scriptify's own convention writes the class with a leading backslash
+        // ("\\Some\\Class::method", as every example in the docs does) and
+        // class_exists() accepts it. A PSR-11 id does not carry one -- ::class
+        // never produces it -- so passing the name through unchanged would miss
+        // every container entry and fall back to `new` without a word.
+        $containerId = ltrim($className, '\\');
+
+        // Offering a container is a statement: "build my objects this way".
+        // Scriptify takes it literally and does not second-guess a miss with
+        // `new`. Guessing would build the object anyway, with whatever `new`
+        // gives it -- a class with only optional dependencies would run without
+        // the collaborators the container would have injected, and nothing would
+        // say so.
+        if ($container !== null) {
+            if (!$container->has($containerId)) {
+                throw new ScriptifyException(
+                    sprintf(
+                        'Cannot build %s: the container has no entry for "%s". Register it in '
+                        . 'the container.',
+                        $containerId,
+                        $containerId
+                    )
+                );
+            }
+
+            return $container->get($containerId);
+        }
+
+        // No container: `new`, as Scriptify has always done -- and a clear error
+        // when `new` cannot do it, instead of an ArgumentCountError thrown from
+        // inside Scriptify with a stack trace pointing at the wrong place.
+        $constructor = (new ReflectionClass($className))->getConstructor();
+        if ($constructor !== null && $constructor->getNumberOfRequiredParameters() > 0) {
+            throw new ScriptifyException(
+                sprintf(
+                    'Cannot build %s: its constructor requires %d argument(s), and no PSR-11 '
+                    . 'container was offered. Point --bootstrap at a file that returns one, or pass it '
+                    . 'to Launcher or Runner.',
+                    $containerId,
+                    $constructor->getNumberOfRequiredParameters()
+                )
+            );
+        }
+
+        return new $className();
     }
 
     public function execute(): void
@@ -62,25 +151,55 @@ class Runner
     }
 
     /**
+     * Print the PHPDoc of the method followed by a usage line.
+     *
+     * By default the usage line is the Scriptify one:
+     * `<script> run Name/Space/Class::method --arg <a> --arg [b]`.
+     *
+     * A launcher that wraps Scriptify behind its own command names passes
+     * $usagePrefix (e.g. "./app user:cleanup"); the usage line is then that
+     * prefix followed by the parameters as plain positional values, without
+     * `--arg`: `./app user:cleanup <days> [table]`.
+     *
      * @throws ReflectionException
      */
-    public function showDocs(): void
+    public function showDocs(?string $usagePrefix = null): void
     {
         $reflection = new ReflectionClass($this->instance);
         $method = $reflection->getMethod($this->methodName ?? '');
-        $docs = $method->getDocComment();
 
-        $docs = preg_replace('/( *\/\*\*[\r\n]| *\*\/? *)/', '', $docs);
+        $docs = self::stripDocComment((string) $method->getDocComment());
 
-        // get the current script name
         $docs .= "\nUsage: \n";
-        $docs .= ($_SERVER['argv'][0] ?? 'scriptify') . " run \"" . str_replace('\\', '\\\\', $this->className . "::" . $this->methodName) . "\" ";
+        if ($usagePrefix === null) {
+            // Prints the slash form: it needs no quoting, so the line can be pasted
+            // as-is into a shell, a composer script or a service definition.
+            $docs .= ($_SERVER['argv'][0] ?? 'scriptify') . " run "
+                . str_replace('\\', '/', ltrim((string) $this->className, '\\') . "::" . $this->methodName) . " ";
+            $argPrefix = "--arg ";
+        } else {
+            $docs .= $usagePrefix . " ";
+            $argPrefix = "";
+        }
 
         foreach ($method->getParameters() as $param) {
             $delimiter = $param->isOptional() ? "[]" : "<>";
-            $docs .= "--arg " . $delimiter[0] . $param->name .  $delimiter[1] . " ";
+            $docs .= $argPrefix . $delimiter[0] . $param->name .  $delimiter[1] . " ";
         }
 
         echo $docs;
+    }
+
+    /**
+     * Reduce a docblock to its text: drop the opening and closing markers
+     * completely, then the leading asterisk of each line.
+     */
+    protected static function stripDocComment(string $docComment): string
+    {
+        $docs = (string) preg_replace('~^\s*/\*+|\*+/\s*$~', '', $docComment);
+        $docs = (string) preg_replace('~^[ \t]*\*[ \t]?~m', '', $docs);
+        $docs = trim($docs);
+
+        return $docs === '' ? '' : $docs . "\n";
     }
 }
