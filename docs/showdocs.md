@@ -28,13 +28,14 @@ This will return a pong message with the arguments passed and write to the file 
 @param string|null $arg2
 
 Usage:
-scriptify run "\\ByJG\\Scriptify\\Sample\\TryMe::ping" --arg <arg1> --arg [arg2]
+scriptify run ByJG/Scriptify/Sample/TryMe::ping --arg <arg1> --arg [arg2]
 ```
 
 The `--showdocs` option reads the PHPDoc comments from your method and displays:
 - Method description
 - Parameter information (types, names, whether they're optional)
-- Usage examples with the correct syntax
+- Usage examples with the correct syntax. The class is printed with forward slashes, so the line
+  can be pasted into a shell without quoting (see [script](script.md))
 
 ## Custom usage line
 

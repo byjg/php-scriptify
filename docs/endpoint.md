@@ -19,7 +19,12 @@ Let's take a look at an example using the `byjg/restserver` framework, and with 
 
 ```php
 <?php
-require_once __DIR__ . '/../../vendor/autoload.php';
+use ByJG\RestServer\OutputProcessor\JsonOutputProcessor;
+use ByJG\RestServer\Route\Route;
+use ByJG\RestServer\Route\RouteList;
+use ByJG\RestServer\Server;
+
+require_once __DIR__ . '/vendor/autoload.php';
 
 $routeDefinition = new RouteList();
 $routeDefinition->addRoute(Route::get("/testclosure")
@@ -27,12 +32,12 @@ $routeDefinition->addRoute(Route::get("/testclosure")
     ->withClosure(function ($response, $request) {
         $response->write([
             "result" => "OK",
-            "arg" => $request->get("arg")
+            "arg" => $request->query("arg")
         ]);
     })
 );
 
-$restServer = new HttpRequestHandler();
+$restServer = new Server();
 $restServer->handle($routeDefinition);
 ```
 

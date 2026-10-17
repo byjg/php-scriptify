@@ -64,7 +64,8 @@ exit((new \ByJG\Scriptify\Launcher(new \App\Command\AppCommands(), $container))-
 ```
 
 `list --check` gives each command one of: `OK`, `INVALID_NAME`, `RESERVED`,
-`INVALID_TARGET`, `MISSING_CLASS`, `MISSING_METHOD`, `NOT_PUBLIC`, `NOT_IN_CONTAINER`.
+`INVALID_TARGET`, `MISSING_CLASS`, `MISSING_METHOD`, `NOT_PUBLIC`, `NOT_IN_CONTAINER`, or `ERROR`
+with the message when the provider or the container throws.
 It builds nothing: reflection and the container's `has()` answer it.
 
 ## How the class is built
