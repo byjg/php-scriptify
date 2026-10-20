@@ -11,8 +11,10 @@ stop on shutdown
 respawn
 respawn limit 99 5
 
+chdir {{ rootpath }}
+
 script
     echo -n $"Starting $NAME: "
     source {{ environment }}
-    {{ phppath }} {{ scriptifyservice }} run "{{ class }}" --bootstrap "{{ bootstrap }}" --rootdir "{{ rootpath }}" {{ consoleargs }} --daemon
+    {{ command }} --daemon
 end script

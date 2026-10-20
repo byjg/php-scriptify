@@ -45,7 +45,7 @@ class InstallCommand extends Command
                 'bootstrap',
                 'b',
                 InputOption::VALUE_OPTIONAL,
-                'The relative path from root directory, like vendor/autoload.php',
+                'The bootstrap file, relative to the root directory: the autoload file, or a file that returns a PSR-11 container',
                 'vendor/autoload.php'
             )
             ->addOption(

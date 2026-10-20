@@ -3,6 +3,7 @@
 namespace ByJG\Scriptify\Console;
 
 use ByJG\Scriptify\Runner;
+use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -26,7 +27,7 @@ class RunCommand extends Command
                 'bootstrap',
                 'b',
                 InputOption::VALUE_OPTIONAL,
-                'The relative path from root directory for the bootstrap file, like ./vendor/autoload.php',
+                'The bootstrap file, relative to the root directory: the autoload file, or a file that returns a PSR-11 container',
                 'vendor/autoload.php'
             )
             ->addOption(
@@ -74,9 +75,20 @@ class RunCommand extends Command
         }
 
         chdir($rootPath);
-        require_once $bootstrap;
 
-        $runner = new Runner($className, $input->getOption("arg"), $input->getOption('daemon'));
+        // A bootstrap file that RETURNS a PSR-11 container hands it to Scriptify;
+        // that is the whole protocol. The default bootstrap (vendor/autoload.php)
+        // returns Composer's ClassLoader, which is not a container, so nothing
+        // changes for anyone who does not opt in.
+        $loaded = require_once $bootstrap;
+        $container = $loaded instanceof ContainerInterface ? $loaded : null;
+
+        $runner = new Runner(
+            $className,
+            $input->getOption("arg"),
+            $input->getOption('daemon'),
+            $container
+        );
 
         if ($input->getOption('showdocs')) {
             $runner->showDocs();
