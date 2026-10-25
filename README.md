@@ -5,7 +5,7 @@ tags: [php, cli]
 
 # Scriptify - CLI Script Transformer
 
-Transform any PHP class into an executable script callable from the command line without changes or refactoring.
+Run any existing PHP method from the command line, or install it as a system service, without writing a command class.
 
 [![Sponsor](https://img.shields.io/badge/Sponsor-%23ea4aaa?logo=githubsponsors&logoColor=white&labelColor=0d1117)](https://github.com/sponsors/byjg)
 [![Build Status](https://github.com/byjg/php-scriptify/actions/workflows/phpunit.yml/badge.svg?branch=master)](https://github.com/byjg/php-scriptify/actions/workflows/phpunit.yml)
@@ -14,6 +14,27 @@ Transform any PHP class into an executable script callable from the command line
 [![GitHub source](https://img.shields.io/badge/Github-source-informational?logo=github)](https://github.com/byjg/php-scriptify/)
 [![GitHub license](https://img.shields.io/github/license/byjg/php-scriptify.svg)](https://opensource.byjg.com/license/)
 [![GitHub release](https://img.shields.io/github/release/byjg/php-scriptify.svg)](https://github.com/byjg/php-scriptify/releases/)
+
+## Why
+
+To call your code from a shell, a cron job or a daemon, frameworks make you write a command
+class for each task: parse the arguments, build the dependencies, call the method. The
+method you wanted to run already exists.
+
+Scriptify calls it directly:
+
+```bash
+scriptify run "App/Service/Report::rebuild" --arg 2026-10      # once, from the shell
+scriptify install --template=crond nightly-report \
+    --class "App/Service/Report::rebuild" --rootdir /srv/app   # as a cron job or systemd service
+```
+
+- **No glue code.** The arguments are passed to the method's parameters, and with a PSR-11
+  container the class gets its constructor dependencies.
+- **From shell to service in one step.** `install` writes the systemd, cron, upstart or
+  init.d service with the full command line.
+- **A command line for your app.** `Launcher` maps short names (`php app report:rebuild`) to
+  methods, and `scriptify terminal` opens a REPL with your autoloader.
 
 ## Features
 
