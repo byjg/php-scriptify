@@ -1,9 +1,10 @@
 ---
 sidebar_key: scriptify
+sidebar_category: infrastructure
 tags: [php, cli]
 ---
 
-# Scriptify - CLI Script Transformer
+# Scriptify: PHP Methods as Commands and Services
 
 Run any existing PHP method from the command line, or install it as a system service, without writing a command class.
 
